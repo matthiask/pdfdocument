@@ -90,7 +90,7 @@ class Style(object):
         )
 
     tableHead = tableBase+(
-        ('FONT', (0, 0), (-1, -1), 'ReportingBold', 8),
+        ('FONT', (0, 0), (-1, 0), 'ReportingBold', 8),
         ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
         ('TOPPADDING', (0, 0), (-1, -1), 1),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
