@@ -109,6 +109,7 @@ class PDFDocument(object):
 
     def __init__(self, *args, **kwargs):
         self.doc = BaseDocTemplate(*args, **kwargs)
+        self.doc.PDFDocument = self
         self.numPages = 0
         self.doc._allSatisfied=self.__all_satisfied
         self.doc.setProgressCallBack(self.__progresshandler)
