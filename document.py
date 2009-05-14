@@ -128,7 +128,8 @@ class PDFDocument(object):
 
     def _p(default_style):
         def _fn(self, text=u'', style=None):
-            self.story.append(Paragraph(text), style or default_style)
+            self.story.append(Paragraph(text, style or default_style))
+        return _fn
 
     p = _p(Style.normal)
     h1 = _p(Style.heading1)
