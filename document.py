@@ -192,3 +192,30 @@ class PDFDocument(object):
 
             # reset story
             self.story = []
+
+    def confidential(self, canvas):
+        canvas.saveState()
+
+        canvas.translate(18.5*cm, 27.4*cm)
+
+        canvas.setLineWidth(3)
+        canvas.setFillColorRGB(1, 0, 0)
+        canvas.setStrokeGray(0.5)
+
+        p = canvas.beginPath()
+        p.moveTo(10, 0)
+        p.lineTo(20, 10)
+        p.lineTo(30, 0)
+        p.lineTo(40, 10)
+        p.lineTo(30, 20)
+        p.lineTo(40, 30)
+        p.lineTo(30, 40)
+        p.lineTo(20, 30)
+        p.lineTo(10, 40)
+        p.lineTo(0, 30)
+        p.lineTo(10, 20)
+        p.lineTo(0, 10)
+
+        canvas.drawPath(p, fill=1, stroke=0)
+
+        canvas.restoreState()
