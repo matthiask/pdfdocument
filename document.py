@@ -146,6 +146,9 @@ class PDFDocument(object):
     def hr(self):
         self.story.append(HRFlowable(width='100%', thickness=0.2, color=black))
 
+    def pagebreak(self):
+        self.story.append(PageBreak())
+
     def generate(self):
         self.doc.multiBuild(self.story)
 
