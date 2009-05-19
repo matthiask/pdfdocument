@@ -292,13 +292,10 @@ def reporting_pdf_draw_page_template(c, doc):
         'current_page': doc.page, 'total_pages': doc.numPages},
         ))
 
-    c.drawImage(
-        os.path.join(settings.APP_BASEDIR, 'base', 'reporting', 'images', 'feinheit_logo_15_30_mini.png'),
-        x=26*mm,
-        y=9.2*mm,
-        width=0.95*REPORTING_PDF_LEFT_OFFSET,
-        height=0.95*REPORTING_PDF_LEFT_OFFSET/8.395,
-        )
+    logo = getattr(settings, 'PDF_LOGO_SETTINGS', None)
+    if logo:
+        c.drawImage(os.path.join(settings.APP_BASEDIR, 'base', 'reporting', 'images', logo[0]),
+            **logo[1])
 
 
 class ReportingPDFDocument(PDFDocument):
