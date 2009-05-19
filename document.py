@@ -322,16 +322,19 @@ class ReportingPDFDocument(PDFDocument):
 
     def address(self, obj, prefix):
         data = {}
-        for field in ('company', 'first_name', 'last_name', 'address', 'zip_code', 'city'):
+        for field in ('company', 'title', 'first_name', 'last_name', 'address', 'zip_code', 'city'):
             data[field] = getattr(obj, '%s_%s' % (prefix, field))
 
         address = []
         if data['company']:
             address.append(data['company'])
+
+        title = data['title'] and '%s ' % data['title'] or ''
         if data['first_name']:
-            address.append(u'%s %s' % (data['first_name'], data['last_name']))
+            address.append(u'%s%s %s' % (title, data['first_name'], data['last_name']))
         else:
-            address.append(data['last_name'])
+            address.append(u'%s%s' % (title, data['last_name']))
+
         address.append(data['address'])
         address.append(u'%s %s' % (data['zip_code'], data['city']))
 
