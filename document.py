@@ -143,11 +143,16 @@ class ReportingDocTemplate(BaseDocTemplate):
         self.setProgressCallBack(self._onProgress_cb)
 
     def afterFlowable(self, flowable):
+        self.numPages = max(self.canv.getPageNumber(), self.numPages)
+
         if isinstance(flowable, BottomTable):
             self.bottomTableHeight = reduce(
                 lambda p, q: p+q,
                 flowable._rowHeights,
                 0)
+
+            # evil hack... I don't exactly know why this is necessary (mk)
+            self.numPages -= 1
 
     # here the real hackery starts ... thanks Ralph
     def _allSatisfied(self):
@@ -159,11 +164,6 @@ class ReportingDocTemplate(BaseDocTemplate):
     def _onProgress_cb(self, what, arg):
         if what=='STARTED':
             self._lastnumPages = self.numPages
-
-            # reset story
-            self.story = []
-        elif what=='PAGE':
-            self.numPages = max(self.canv.getPageNumber(), self.numPages)
 
 
 class PDFDocument(object):
@@ -269,7 +269,8 @@ class PDFDocument(object):
         self.story.append(CondPageBreak(20*cm))
 
 
-REPORTING_PDF_LEFT_OFFSET = 30*mm
+REPORTING_PDF_PAGE_WIDTH = 164*mm
+REPORTING_PDF_LEFT_OFFSET = 28.6*mm
 
 
 class ReportingPDFDocument(PDFDocument):
@@ -319,7 +320,7 @@ class ReportingPDFDocument(PDFDocument):
                 (u'IBAN-Nr.', bankaccount.iban),
                 (u'BIC/SWIFT', bankaccount.bic),
             ),
-            (REPORTING_PDF_LEFT_OFFSET, 13.4*cm),
+            (REPORTING_PDF_LEFT_OFFSET, REPORTING_PDF_PAGE_WIDTH-REPORTING_PDF_LEFT_OFFSET),
             style=Style.tableLLR+(
                 ('SPAN', (0, 0), (-1, 0)),
                 ('FONT', (0, 0), (-1, 0), 'ReportingBold', 8),
