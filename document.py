@@ -11,7 +11,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from reportlab.platypus import BaseDocTemplate, Paragraph, Spacer, Frame,\
     PageTemplate, NextPageTemplate, PageBreak, Table, TableStyle, Image,\
-    Preformatted, Flowable, XPreformatted
+    Preformatted, Flowable, XPreformatted, KeepTogether, CondPageBreak
 
 import os
 import copy
@@ -38,17 +38,19 @@ class Style(object):
     normal = _styles['Normal']
     normal.fontName = 'ReportingRegular'
     normal.fontSize = 8
-    #normal.leading = 2.8*mm
+    normal.firstLineIndent = 0
     #normal.textColor = '#0e2b58'
 
     heading1 = copy.deepcopy(normal)
     heading1.fontName = 'ReportingRegular'
-    heading1.fontSize = 18
+    heading1.fontSize = 12
+    heading1.leading = 16
     #heading1.leading = 10*mm
 
     heading2 = copy.deepcopy(normal)
     heading2.fontName = 'ReportingBold'
-    heading2.fontSize = 14
+    heading2.fontSize = 10
+    heading2.leading = 14
     #heading2.leading = 5*mm
 
     small = copy.deepcopy(normal)
@@ -77,6 +79,7 @@ class Style(object):
         ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
         ('LEFTPADDING', (0, 0), (-1, -1), 0),
         ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+        ('FIRSTLINEINDENT', (0, 0), (-1, -1), 0),
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         )
 
@@ -99,21 +102,73 @@ class Style(object):
         )
 
 _Paragraph = Paragraph
-def Paragraph(txt, *args, **kwargs):
+
+def MarkupParagraph(txt, *args, **kwargs):
     if not txt: return _Paragraph(u'', *args, **kwargs)
-    return _Paragraph(force_unicode(escape(txt)), *args, **kwargs)
+    return _Paragraph(force_unicode(txt), *args, **kwargs)
+
+
+def Paragraph(txt, *args, **kwargs):
+    return MarkupParagraph(escape(txt), *args, **kwargs)
+
+
+def linebreaksbr(text):
+    return text.replace('\r', '').replace('\n', '<br />')
+
+
+class BottomTable(Table):
+    pass
+
+
+class BottomSpacer(Spacer):
+    def wrap(self, availWidth, availHeight):
+        my_height = availHeight-self._doc.bottomTableHeight
+
+        if my_height<=0:
+            return (self.width, availHeight)
+        else:
+            return (self.width, my_height-10)
+
+
+class ReportingDocTemplate(BaseDocTemplate):
+    def __init__(self, *args, **kwargs):
+        BaseDocTemplate.__init__(self, *args, **kwargs)
+        self.bottomTableHeight = 0
+        self.numPages = 0
+        self._lastNumPages = 0
+        self.setProgressCallBack(self._onProgress_cb)
+
+    def afterFlowable(self, flowable):
+        if isinstance(flowable, BottomTable):
+            self.bottomTableHeight = reduce(
+                lambda p, q: p+q,
+                flowable._rowHeights,
+                0)
+
+    # here the real hackery starts ... thanks Ralph
+    def _allSatisfied(self):
+        """ Called by multi-build - are all cross-references resolved? """
+        if self._lastnumPages < self.numPages:
+            return 0
+        return BaseDocTemplate._allSatisfied(self)
+
+    def _onProgress_cb(self, what, arg):
+        if what=='STARTED':
+            self._lastnumPages = self.numPages
+
+            # reset story
+            self.story = []
+        elif what=='PAGE':
+            self.numPages = max(self.canv.getPageNumber(), self.numPages)
 
 
 class PDFDocument(object):
     show_boundaries = False
 
     def __init__(self, *args, **kwargs):
-        self.doc = BaseDocTemplate(*args, **kwargs)
+        self.doc = ReportingDocTemplate(*args, **kwargs)
         self.doc.PDFDocument = self
-        self.numPages = 0
-        self.doc._allSatisfied=self.__all_satisfied
-        self.doc.setProgressCallBack(self.__progresshandler)
-        self.doc.afterPage=self.__after_page
+        #self.doc.setProgressCallBack(self.__progresshandler)
         self.story = []
 
     def init_frames(self):
@@ -137,6 +192,13 @@ class PDFDocument(object):
     small = _p(Style.small)
     smaller = _p(Style.smaller)
 
+    def p_linebreaksbr(self, text, style=None):
+        self.story.append(MarkupParagraph(linebreaksbr(text),
+            style or Style.normal))
+
+    def p_markup(self, text, style=None):
+        self.story.append(MarkupParagraph(text, style or Style.normal))
+
     def spacer(self, height=0.6*cm):
         self.story.append(Spacer(1, height))
 
@@ -149,28 +211,15 @@ class PDFDocument(object):
     def pagebreak(self):
         self.story.append(PageBreak())
 
+    def bottom_table(self, data, columns, style=None):
+        obj = BottomSpacer(1, 1)
+        obj._doc = self.doc
+        self.story.append(obj)
+
+        self.story.append(BottomTable(data, columns, style=style or Style.table))
+
     def generate(self):
         self.doc.multiBuild(self.story)
-
-    def __after_page(self):
-        """This is called after page processing, and
-        immediately after the afterDrawPage method
-        of the current page template."""
-        self.numPages = max(self.doc.canv.getPageNumber(), self.numPages)
-
-    def __all_satisfied(self):
-        """ Called by multi-build - are all cross-references resolved? """
-        if self._lastnumPages < self.numPages:
-            return 0
-        return BaseDocTemplate._allSatisfied(self.doc)
-
-    def __progresshandler(self, what, arg):
-        """ follow the progress """
-        if what=='STARTED':
-            self._lastnumPages = self.numPages
-
-            # reset story
-            self.story = []
 
     def confidential(self, canvas):
         canvas.saveState()
@@ -211,3 +260,6 @@ class PDFDocument(object):
         for i, text in enumerate(reversed(texts)):
             canvas.drawString(26*mm, (8+3*i)*mm, text)
         canvas.restoreState()
+
+    def next_frame(self):
+        self.story.append(CondPageBreak(20*cm))
