@@ -190,6 +190,14 @@ class ReportingDocTemplate(BaseDocTemplate):
             self._lastnumPages = self.numPages
 
 
+def reporting_pdf_draw_page_template(c, doc):
+    doc.PDFDocument.header(c, settings.REPORTING_PDF_HEADER)
+    doc.PDFDocument.footer(c, (
+        _('Page %(current_page)d of %(total_pages)d') % {
+        'current_page': doc.page, 'total_pages': doc.numPages},
+        ))
+
+
 class PDFDocument(object):
     show_boundaries = False
 
@@ -208,6 +216,36 @@ class PDFDocument(object):
             PageTemplate(id='Later', frames=[self.frame], onPage=page_fn_later or page_fn),
             ])
         self.story.append(NextPageTemplate('Later'))
+
+    def init_report(self, page_fn=reporting_pdf_draw_page_template, page_fn_later=None):
+        frame_kwargs = {'showBoundary': self.show_boundaries,
+            'leftPadding': 0, 'rightPadding': 0, 'topPadding': 0, 'bottomPadding': 0}
+
+        full_frame = Frame(2.6*cm, 2*cm, 16.4*cm, 25*cm, **frame_kwargs)
+
+        self.doc.addPageTemplates([
+            PageTemplate(id='First', frames=[full_frame], onPage=page_fn),
+            PageTemplate(id='Later', frames=[full_frame], onPage=page_fn_later or page_fn),
+            ])
+        self.story.append(NextPageTemplate('Later'))
+
+        self.style = style(8)
+
+    def init_letter(self, page_fn=reporting_pdf_draw_page_template, page_fn_later=None):
+        frame_kwargs = {'showBoundary': self.show_boundaries,
+            'leftPadding': 0, 'rightPadding': 0, 'topPadding': 0, 'bottomPadding': 0}
+
+        address_frame = Frame(2.6*cm, 22*cm, 16.4*cm, 4*cm, **frame_kwargs)
+        rest_frame = Frame(2.6*cm, 2*cm, 16.4*cm, 20*cm, **frame_kwargs)
+        full_frame = Frame(2.6*cm, 2*cm, 16.4*cm, 25*cm, **frame_kwargs)
+
+        self.doc.addPageTemplates([
+            PageTemplate(id='First', frames=[address_frame, rest_frame], onPage=page_fn),
+            PageTemplate(id='Later', frames=[full_frame], onPage=page_fn_later or page_fn),
+            ])
+        self.story.append(NextPageTemplate('Later'))
+
+        self.style = style(9)
 
     def p(self, text, style=None):
         self.story.append(Paragraph(text, style or self.style.normal))
@@ -278,15 +316,26 @@ class PDFDocument(object):
 
     def header(self, canvas, text):
         canvas.saveState()
+        canvas.setFont('ReportingBold', 10)
+        canvas.drawString(26*mm, 284*mm, text[0])
         canvas.setFont('ReportingRegular', 10)
-        canvas.drawString(26*mm, 284*mm, text)
+        canvas.drawString(26*mm+settings.REPORTING_PDF_LEFT_OFFSET, 284*mm, text[1])
         canvas.restoreState()
 
     def footer(self, canvas, texts):
         canvas.saveState()
         canvas.setFont('ReportingRegular', 6)
         for i, text in enumerate(reversed(texts)):
-            canvas.drawString(26*mm, (8+3*i)*mm, text)
+            canvas.drawRightString(190*mm, (8+3*i)*mm, text)
+
+        for i, text in enumerate(reversed(settings.REPORTING_PDF_FOOTER)):
+            canvas.drawString(26*mm+settings.REPORTING_PDF_LEFT_OFFSET, (8+3*i)*mm, text)
+
+        logo = getattr(settings, 'PDF_LOGO_SETTINGS', None)
+        if logo:
+            canvas.drawImage(os.path.join(settings.APP_BASEDIR, 'base', 'reporting', 'images', logo[0]),
+                **logo[1])
+
         canvas.restoreState()
 
     def next_frame(self):
@@ -299,46 +348,6 @@ class PDFDocument(object):
         keeptogether = KeepTogether(self.story[self.keeptogether_index:])
         self.story = self.story[:self.keeptogether_index]
         self.story.append(keeptogether)
-
-
-def reporting_pdf_draw_page_template(c, doc):
-    doc.PDFDocument.header(c, settings.REPORTING_PDF_HEADER)
-    doc.PDFDocument.footer(c, (
-        _('Page %(current_page)d of %(total_pages)d') % {
-        'current_page': doc.page, 'total_pages': doc.numPages},
-        ))
-
-
-class ReportingPDFDocument(PDFDocument):
-    def init_report(self, page_fn=reporting_pdf_draw_page_template, page_fn_later=None):
-        frame_kwargs = {'showBoundary': self.show_boundaries,
-            'leftPadding': 0, 'rightPadding': 0, 'topPadding': 0, 'bottomPadding': 0}
-
-        full_frame = Frame(2.6*cm, 2*cm, 16.4*cm, 25*cm, **frame_kwargs)
-
-        self.doc.addPageTemplates([
-            PageTemplate(id='First', frames=[full_frame], onPage=page_fn),
-            PageTemplate(id='Later', frames=[full_frame], onPage=page_fn_later or page_fn),
-            ])
-        self.story.append(NextPageTemplate('Later'))
-
-        self.style = style(8)
-
-    def init_letter(self, page_fn=reporting_pdf_draw_page_template, page_fn_later=None):
-        frame_kwargs = {'showBoundary': self.show_boundaries,
-            'leftPadding': 0, 'rightPadding': 0, 'topPadding': 0, 'bottomPadding': 0}
-
-        address_frame = Frame(2.6*cm, 22*cm, 16.4*cm, 4*cm, **frame_kwargs)
-        rest_frame = Frame(2.6*cm, 2*cm, 16.4*cm, 20*cm, **frame_kwargs)
-        full_frame = Frame(2.6*cm, 2*cm, 16.4*cm, 25*cm, **frame_kwargs)
-
-        self.doc.addPageTemplates([
-            PageTemplate(id='First', frames=[address_frame, rest_frame], onPage=page_fn),
-            PageTemplate(id='Later', frames=[full_frame], onPage=page_fn_later or page_fn),
-            ])
-        self.story.append(NextPageTemplate('Later'))
-
-        self.style = style(9)
 
     def address_head(self):
         self.smaller(settings.REPORTING_PDF_ADDRESSLINE)
@@ -363,28 +372,3 @@ class ReportingPDFDocument(PDFDocument):
         address.append(u'%s %s' % (data['zip_code'], data['city']))
 
         self.p('\n'.join(address))
-
-    def header(self, canvas, text):
-        canvas.saveState()
-        canvas.setFont('ReportingBold', 10)
-        canvas.drawString(26*mm, 284*mm, text[0])
-        canvas.setFont('ReportingRegular', 10)
-        canvas.drawString(26*mm+settings.REPORTING_PDF_LEFT_OFFSET, 284*mm, text[1])
-        canvas.restoreState()
-
-
-    def footer(self, canvas, texts):
-        canvas.saveState()
-        canvas.setFont('ReportingRegular', 6)
-        for i, text in enumerate(reversed(texts)):
-            canvas.drawRightString(190*mm, (8+3*i)*mm, text)
-
-        for i, text in enumerate(reversed(settings.REPORTING_PDF_FOOTER)):
-            canvas.drawString(26*mm+settings.REPORTING_PDF_LEFT_OFFSET, (8+3*i)*mm, text)
-
-        logo = getattr(settings, 'PDF_LOGO_SETTINGS', None)
-        if logo:
-            canvas.drawImage(os.path.join(settings.APP_BASEDIR, 'base', 'reporting', 'images', logo[0]),
-                **logo[1])
-
-        canvas.restoreState()
