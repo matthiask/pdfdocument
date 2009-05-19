@@ -68,6 +68,9 @@ class Style(object):
     right = copy.deepcopy(normal)
     right.alignment = TA_RIGHT
 
+    indented = copy.deepcopy(normal)
+    indented.leftIndent = 0.3*cm
+
     # alignment = TA_RIGHT
     # leftIndent = 0.4*cm
     # spaceBefore = 0
