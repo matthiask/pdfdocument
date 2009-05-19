@@ -246,7 +246,7 @@ class PDFDocument(object):
         frame_kwargs = {'showBoundary': self.show_boundaries,
             'leftPadding': 0, 'rightPadding': 0, 'topPadding': 0, 'bottomPadding': 0}
 
-        address_frame = Frame(2.6*cm, 20.2*cm, 16.4*cm, 4*cm, **frame_kwargs)
+        address_frame = Frame(2.6*cm, settings.REPORTING_PDF_ADDRESSBLOCK_Y, 16.4*cm, 4*cm, **frame_kwargs)
         rest_frame = Frame(2.6*cm, 2*cm, 16.4*cm, 18.2*cm, **frame_kwargs)
         full_frame = Frame(2.6*cm, 2*cm, 16.4*cm, 25*cm, **frame_kwargs)
 
