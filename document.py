@@ -117,6 +117,10 @@ def linebreaksbr(text):
 
 
 class BottomTable(Table):
+    """
+    This table will automatically be moved to the bottom of the page using the
+    BottomSpacer right before it.
+    """
     pass
 
 
@@ -263,3 +267,58 @@ class PDFDocument(object):
 
     def next_frame(self):
         self.story.append(CondPageBreak(20*cm))
+
+
+class ReportingPDFDocument(PDFDocument):
+    def init_letter(self, page_fn, page_fn_later=None):
+        frame_kwargs = {'showBoundary': self.show_boundaries,
+            'leftPadding': 0, 'rightPadding': 0, 'topPadding': 0, 'bottomPadding': 0}
+
+        address_frame = Frame(2.6*cm, 22*cm, 16.4*cm, 4*cm, **frame_kwargs)
+        rest_frame = Frame(2.6*cm, 2*cm, 16.4*cm, 20*cm, **frame_kwargs)
+        full_frame = Frame(2.6*cm, 2*cm, 16.4*cm, 25*cm, **frame_kwargs)
+
+        self.doc.addPageTemplates([
+            PageTemplate(id='First', frames=[address_frame, rest_frame], onPage=page_fn),
+            PageTemplate(id='Later', frames=[full_frame], onPage=page_fn_later or page_fn),
+            ])
+        self.story.append(NextPageTemplate('Later'))
+
+    def address_head(self):
+        self.smaller(u'FEINHEIT GmbH · Dienerstrasse 15 · CH-8004 Zürich')
+        self.spacer(2*mm)
+
+    def address(self, obj, prefix):
+        data = {}
+        for field in ('company', 'first_name', 'last_name', 'address', 'zip_code', 'city'):
+            data[field] = getattr(obj, '%s_%s' % (prefix, field))
+
+        address = []
+        if data['company']:
+            address.append(data['company'])
+        if data['first_name']:
+            address.append(u'%s %s' % (data['first_name'], data['last_name']))
+        else:
+            address.append(data['last_name'])
+        address.append(data['address'])
+        address.append(u'%s %s' % (data['zip_code'], data['city']))
+
+        self.p_linebreaksbr('\n'.join(address))
+
+    def payment_info(self, invoice, bankaccount):
+        self.bottom_table((
+                (u'Bitte überweisen Sie obenstehenden Betrag innerhalb von %s Tagen (%s) auf folgendes Konto:' % (
+                    invoice.payment_within, invoice.due_date.strftime('%d.%m.%Y')), ''),
+                ('', ''),
+                (u'Bank', bankaccount.bank),
+                (u'Kontonummer', bankaccount.account),
+                (u'Bankenclearingnr.', bankaccount.clearing_nr),
+                (u'IBAN-Nr.', bankaccount.iban),
+                (u'BIC/SWIFT', bankaccount.bic),
+            ),
+            (3*cm, 13.4*cm),
+            style=Style.tableLLR+(
+                ('SPAN', (0, 0), (-1, 0)),
+                ('FONT', (0, 0), (-1, 0), 'ReportingBold', 8),
+                )
+            )
