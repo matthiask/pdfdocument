@@ -269,6 +269,9 @@ class PDFDocument(object):
         self.story.append(CondPageBreak(20*cm))
 
 
+REPORTING_PDF_LEFT_OFFSET = 30*mm
+
+
 class ReportingPDFDocument(PDFDocument):
     def init_letter(self, page_fn, page_fn_later=None):
         frame_kwargs = {'showBoundary': self.show_boundaries,
@@ -316,9 +319,28 @@ class ReportingPDFDocument(PDFDocument):
                 (u'IBAN-Nr.', bankaccount.iban),
                 (u'BIC/SWIFT', bankaccount.bic),
             ),
-            (3*cm, 13.4*cm),
+            (REPORTING_PDF_LEFT_OFFSET, 13.4*cm),
             style=Style.tableLLR+(
                 ('SPAN', (0, 0), (-1, 0)),
                 ('FONT', (0, 0), (-1, 0), 'ReportingBold', 8),
                 )
             )
+
+    def header(self, canvas, text):
+        canvas.saveState()
+        canvas.setFont('ReportingBold', 10)
+        canvas.drawString(26*mm, 284*mm, u'FEINHEIT GmbH')
+        canvas.setFont('ReportingRegular', 10)
+        canvas.drawString(26*mm+REPORTING_PDF_LEFT_OFFSET, 284*mm, u'kreativ studio Zürich')
+        canvas.restoreState()
+
+
+    def footer(self, canvas, texts):
+        canvas.saveState()
+        canvas.setFont('ReportingRegular', 6)
+        for i, text in enumerate(reversed(texts)):
+            canvas.drawRightString(190*mm, (8+3*i)*mm, text)
+
+        canvas.drawString(26*mm+REPORTING_PDF_LEFT_OFFSET, 11*mm, u'FEINHEIT GmbH · Dienerstrasse 15 · CH-8004 Zürich · www.feinheit.ch')
+        canvas.drawString(26*mm+REPORTING_PDF_LEFT_OFFSET, 8*mm, u'+41 55 511 11 41 · kontakt@feinheit.ch · MwSt: 681 875')
+        canvas.restoreState()
