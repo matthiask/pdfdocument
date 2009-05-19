@@ -20,6 +20,7 @@ from datetime import date, datetime
 from django.conf import settings
 from django.utils.encoding import force_unicode
 from django.utils.html import escape
+from django.utils.translation import ugettext as _
 
 
 pdfmetrics.registerFont(TTFont('ReportingRegular', os.path.join(
@@ -338,14 +339,14 @@ class ReportingPDFDocument(PDFDocument):
 
     def payment_info(self, invoice, bankaccount):
         self.bottom_table((
-                (u'Bitte überweisen Sie obenstehenden Betrag innerhalb von %s Tagen (%s) auf folgendes Konto:' % (
-                    invoice.payment_within, invoice.due_date.strftime('%d.%m.%Y')), ''),
+                (_('Kindly remit the outstanding amount within the next %(days)s days (not later than %(date)s) to the following account:') % {
+                    'days': invoice.payment_within, 'date': invoice.due_date.strftime('%d.%m.%Y')}, ''),
                 ('', ''),
-                (u'Bank', bankaccount.bank),
-                (u'Kontonummer', bankaccount.account),
-                (u'Bankenclearingnr.', bankaccount.clearing_nr),
-                (u'IBAN-Nr.', bankaccount.iban),
-                (u'BIC/SWIFT', bankaccount.bic),
+                (_('Bank'), bankaccount.bank),
+                (_('Account number'), bankaccount.account),
+                (_('Clearing number'), bankaccount.clearing_nr),
+                (_('IBAN-No.'), bankaccount.iban),
+                (_('BIC/SWIFT'), bankaccount.bic),
             ),
             (REPORTING_PDF_LEFT_OFFSET, REPORTING_PDF_PAGE_WIDTH-REPORTING_PDF_LEFT_OFFSET),
             style=Style.tableLLR+(
