@@ -280,6 +280,14 @@ class PDFDocument(object):
     def next_frame(self):
         self.story.append(CondPageBreak(20*cm))
 
+    def start_keeptogether(self):
+        self.keeptogether_index = len(self.story)
+
+    def end_keeptogether(self):
+        keeptogether = KeepTogether(self.story[self.keeptogether_index:])
+        self.story = self.story[:self.keeptogether_index]
+        self.story.append(keeptogether)
+
 
 REPORTING_PDF_PAGE_WIDTH = 164*mm
 REPORTING_PDF_LEFT_OFFSET = 28.6*mm
