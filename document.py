@@ -296,11 +296,6 @@ def reporting_pdf_draw_page_template(c, doc):
         'current_page': doc.page, 'total_pages': doc.numPages},
         ))
 
-    logo = getattr(settings, 'PDF_LOGO_SETTINGS', None)
-    if logo:
-        c.drawImage(os.path.join(settings.APP_BASEDIR, 'base', 'reporting', 'images', logo[0]),
-            **logo[1])
-
 
 class ReportingPDFDocument(PDFDocument):
     def init_letter(self, page_fn=reporting_pdf_draw_page_template, page_fn_later=None):
@@ -358,5 +353,10 @@ class ReportingPDFDocument(PDFDocument):
 
         for i, text in enumerate(reversed(settings.REPORTING_PDF_FOOTER)):
             canvas.drawString(26*mm+settings.REPORTING_PDF_LEFT_OFFSET, (8+3*i)*mm, text)
+
+        logo = getattr(settings, 'PDF_LOGO_SETTINGS', None)
+        if logo:
+            canvas.drawImage(os.path.join(settings.APP_BASEDIR, 'base', 'reporting', 'images', logo[0]),
+                **logo[1])
 
         canvas.restoreState()
