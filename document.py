@@ -289,12 +289,8 @@ class PDFDocument(object):
         self.story.append(keeptogether)
 
 
-REPORTING_PDF_PAGE_WIDTH = 164*mm
-REPORTING_PDF_LEFT_OFFSET = 28.6*mm
-
-
 def reporting_pdf_draw_page_template(c, doc):
-    doc.PDFDocument.header(c, u'FEINHEIT GmbH')
+    doc.PDFDocument.header(c, settings.REPORTING_PDF_HEADER)
     doc.PDFDocument.footer(c, (
         _('Page %(current_page)d of %(total_pages)d') % {
         'current_page': doc.page, 'total_pages': doc.numPages},
@@ -322,7 +318,7 @@ class ReportingPDFDocument(PDFDocument):
         self.story.append(NextPageTemplate('Later'))
 
     def address_head(self):
-        self.smaller(u'FEINHEIT GmbH · Dienerstrasse 15 · CH-8004 Zürich')
+        self.smaller(settings.REPORTING_PDF_ADDRESSLINE)
         self.spacer(2*mm)
 
     def address(self, obj, prefix):
@@ -348,9 +344,9 @@ class ReportingPDFDocument(PDFDocument):
     def header(self, canvas, text):
         canvas.saveState()
         canvas.setFont('ReportingBold', 10)
-        canvas.drawString(26*mm, 284*mm, u'FEINHEIT GmbH')
+        canvas.drawString(26*mm, 284*mm, text[0])
         canvas.setFont('ReportingRegular', 10)
-        canvas.drawString(26*mm+REPORTING_PDF_LEFT_OFFSET, 284*mm, u'kreativ studio Zürich')
+        canvas.drawString(26*mm+settings.REPORTING_PDF_LEFT_OFFSET, 284*mm, text[1])
         canvas.restoreState()
 
 
@@ -360,6 +356,7 @@ class ReportingPDFDocument(PDFDocument):
         for i, text in enumerate(reversed(texts)):
             canvas.drawRightString(190*mm, (8+3*i)*mm, text)
 
-        canvas.drawString(26*mm+REPORTING_PDF_LEFT_OFFSET, 11*mm, u'FEINHEIT GmbH · Dienerstrasse 15 · CH-8004 Zürich · www.feinheit.ch')
-        canvas.drawString(26*mm+REPORTING_PDF_LEFT_OFFSET, 8*mm, u'+41 55 511 11 41 · kontakt@feinheit.ch · MwSt: 681 875')
+        for i, text in enumerate(reversed(settings.REPORTING_PDF_FOOTER)):
+            canvas.drawString(26*mm+settings.REPORTING_PDF_LEFT_OFFSET, (8+3*i)*mm, text)
+
         canvas.restoreState()
