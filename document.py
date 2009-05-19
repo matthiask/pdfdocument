@@ -284,8 +284,24 @@ REPORTING_PDF_PAGE_WIDTH = 164*mm
 REPORTING_PDF_LEFT_OFFSET = 28.6*mm
 
 
+def reporting_pdf_draw_page_template(c, doc):
+    doc.PDFDocument.header(c, u'FEINHEIT GmbH')
+    doc.PDFDocument.footer(c, (
+        _('Page %(current_page)d of %(total_pages)d') % {
+        'current_page': doc.page, 'total_pages': doc.numPages},
+        ))
+
+    c.drawImage(
+        os.path.join(settings.APP_BASEDIR, 'base', 'reporting', 'images', 'feinheit_logo_15_30_mini.png'),
+        x=26*mm,
+        y=9.2*mm,
+        width=0.95*REPORTING_PDF_LEFT_OFFSET,
+        height=0.95*REPORTING_PDF_LEFT_OFFSET/8.395,
+        )
+
+
 class ReportingPDFDocument(PDFDocument):
-    def init_letter(self, page_fn, page_fn_later=None):
+    def init_letter(self, page_fn=reporting_pdf_draw_page_template, page_fn_later=None):
         frame_kwargs = {'showBoundary': self.show_boundaries,
             'leftPadding': 0, 'rightPadding': 0, 'topPadding': 0, 'bottomPadding': 0}
 
