@@ -199,8 +199,6 @@ class PDFDocument(object):
         #self.doc.setProgressCallBack(self.__progresshandler)
         self.story = []
 
-        self.style = style(8)
-
     def init_frames(self):
         self.frame = Frame(2.6*cm, 2*cm, 16.4*cm, 25*cm, showBoundary=self.show_boundaries)
 
@@ -312,6 +310,20 @@ def reporting_pdf_draw_page_template(c, doc):
 
 
 class ReportingPDFDocument(PDFDocument):
+    def init_report(self, page_fn=reporting_pdf_draw_page_template, page_fn_later=None):
+        frame_kwargs = {'showBoundary': self.show_boundaries,
+            'leftPadding': 0, 'rightPadding': 0, 'topPadding': 0, 'bottomPadding': 0}
+
+        full_frame = Frame(2.6*cm, 2*cm, 16.4*cm, 25*cm, **frame_kwargs)
+
+        self.doc.addPageTemplates([
+            PageTemplate(id='First', frames=[full_frame], onPage=page_fn),
+            PageTemplate(id='Later', frames=[full_frame], onPage=page_fn_later or page_fn),
+            ])
+        self.story.append(NextPageTemplate('Later'))
+
+        self.style = style(8)
+
     def init_letter(self, page_fn=reporting_pdf_draw_page_template, page_fn_later=None):
         frame_kwargs = {'showBoundary': self.show_boundaries,
             'leftPadding': 0, 'rightPadding': 0, 'topPadding': 0, 'bottomPadding': 0}
@@ -325,6 +337,8 @@ class ReportingPDFDocument(PDFDocument):
             PageTemplate(id='Later', frames=[full_frame], onPage=page_fn_later or page_fn),
             ])
         self.story.append(NextPageTemplate('Later'))
+
+        self.style = style(9)
 
     def address_head(self):
         self.smaller(settings.REPORTING_PDF_ADDRESSLINE)
