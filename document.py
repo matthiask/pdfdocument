@@ -231,6 +231,16 @@ class PDFDocument(object):
 
         self.style = style(8)
 
+    def init_confidential_report(self, page_fn=reporting_pdf_draw_page_template, page_fn_later=None):
+        if not page_fn_later:
+            page_fn_later = page_fn
+
+        def _first_page_fn(canvas, doc):
+            page_fn(canvas, doc)
+            doc.PDFDocument.confidential(canvas)
+
+        self.init_report(page_fn=_first_page_fn, page_fn_later=page_fn_later)
+
     def init_letter(self, page_fn=reporting_pdf_draw_page_template, page_fn_later=None):
         frame_kwargs = {'showBoundary': self.show_boundaries,
             'leftPadding': 0, 'rightPadding': 0, 'topPadding': 0, 'bottomPadding': 0}
