@@ -104,19 +104,31 @@ class Style(object):
         ('LINEBELOW', (0, 0), (-1, 0), 0.2, colors.black),
         )
 
+
+def sanitize(text):
+    REPLACE_MAP = [ (u'&', '&#38;'),
+                    (u'<', '&#60;'),
+                    (u'>', '&#62;'),
+                    (u'ç', '&#231;'),
+                    (u'Ç', '&#199;'),
+                    (u'\n', '<br />'),
+                    (u'\r', ''), ]
+
+    for p, q in REPLACE_MAP:
+        text = text.replace(p, q)
+    return text
+
+
 _Paragraph = Paragraph
 
 def MarkupParagraph(txt, *args, **kwargs):
     if not txt: return _Paragraph(u'', *args, **kwargs)
-    return _Paragraph(force_unicode(txt), *args, **kwargs)
+    return _Paragraph(txt, *args, **kwargs)
 
 
 def Paragraph(txt, *args, **kwargs):
-    return MarkupParagraph(escape(txt), *args, **kwargs)
-
-
-def linebreaksbr(text):
-    return text.replace('\r', '').replace('\n', '<br />')
+    if not txt: return _Paragraph(u'', *args, **kwargs)
+    return _Paragraph(sanitize(txt), *args, **kwargs)
 
 
 class BottomTable(Table):
@@ -198,10 +210,6 @@ class PDFDocument(object):
     h2 = _p(Style.heading2)
     small = _p(Style.small)
     smaller = _p(Style.smaller)
-
-    def p_linebreaksbr(self, text, style=None):
-        self.story.append(MarkupParagraph(linebreaksbr(text),
-            style or Style.normal))
 
     def p_markup(self, text, style=None):
         self.story.append(MarkupParagraph(text, style or Style.normal))
@@ -310,7 +318,7 @@ class ReportingPDFDocument(PDFDocument):
         address.append(data['address'])
         address.append(u'%s %s' % (data['zip_code'], data['city']))
 
-        self.p_linebreaksbr('\n'.join(address))
+        self.p('\n'.join(address))
 
     def payment_info(self, invoice, bankaccount):
         self.bottom_table((
