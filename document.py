@@ -33,52 +33,58 @@ addMapping('Reporting', 1, 0, 'ReportingBold') # bold
 addMapping('Reporting', 1, 1, 'ReportingBold') # bold & italic
 
 
-class Style(object):
+class Empty(object):
+    pass
+
+
+def style(base_size):
+    obj = Empty()
+
     _styles = getSampleStyleSheet()
 
-    normal = _styles['Normal']
-    normal.fontName = 'ReportingRegular'
-    normal.fontSize = 8
-    normal.firstLineIndent = 0
+    obj.normal = _styles['Normal']
+    obj.normal.fontName = 'ReportingRegular'
+    obj.normal.fontSize = base_size
+    obj.normal.firstLineIndent = 0
     #normal.textColor = '#0e2b58'
 
-    heading1 = copy.deepcopy(normal)
-    heading1.fontName = 'ReportingRegular'
-    heading1.fontSize = 12
-    heading1.leading = 16
+    obj.heading1 = copy.deepcopy(obj.normal)
+    obj.heading1.fontName = 'ReportingRegular'
+    obj.heading1.fontSize = 1.5*base_size
+    obj.heading1.leading = 2*base_size
     #heading1.leading = 10*mm
 
-    heading2 = copy.deepcopy(normal)
-    heading2.fontName = 'ReportingBold'
-    heading2.fontSize = 10
-    heading2.leading = 14
+    obj.heading2 = copy.deepcopy(obj.normal)
+    obj.heading2.fontName = 'ReportingBold'
+    obj.heading2.fontSize = 1.25*base_size
+    obj.heading2.leading = 1.75*base_size
     #heading2.leading = 5*mm
 
-    small = copy.deepcopy(normal)
-    small.fontSize = 8
+    obj.small = copy.deepcopy(obj.normal)
+    obj.small.fontSize = base_size-0.9
 
-    smaller = copy.deepcopy(normal)
-    smaller.fontSize = 6
+    obj.smaller = copy.deepcopy(obj.normal)
+    obj.smaller.fontSize = base_size*0.75
 
-    bold = copy.deepcopy(normal)
-    bold.fontName = 'ReportingBold'
+    obj.bold = copy.deepcopy(obj.normal)
+    obj.bold.fontName = 'ReportingBold'
 
-    boldr = copy.deepcopy(bold)
-    boldr.alignment = TA_RIGHT
+    obj.boldr = copy.deepcopy(obj.bold)
+    obj.boldr.alignment = TA_RIGHT
 
-    right = copy.deepcopy(normal)
-    right.alignment = TA_RIGHT
+    obj.right = copy.deepcopy(obj.normal)
+    obj.right.alignment = TA_RIGHT
 
-    indented = copy.deepcopy(normal)
-    indented.leftIndent = 0.3*cm
+    obj.indented = copy.deepcopy(obj.normal)
+    obj.indented.leftIndent = 0.3*cm
 
     # alignment = TA_RIGHT
     # leftIndent = 0.4*cm
     # spaceBefore = 0
     # spaceAfter = 0
 
-    tableBase = (
-        ('FONT', (0, 0), (-1, -1), 'ReportingRegular', 8),
+    obj.tableBase = (
+        ('FONT', (0, 0), (-1, -1), 'ReportingRegular', base_size),
         ('TOPPADDING', (0, 0), (-1, -1), 0),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
         ('LEFTPADDING', (0, 0), (-1, -1), 0),
@@ -87,23 +93,25 @@ class Style(object):
         ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         )
 
-    table = tableBase+(
+    obj.table = obj.tableBase+(
         ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
         )
 
-    tableLLR = tableBase+(
+    obj.tableLLR = obj.tableBase+(
         ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),
         ('VALIGN', (0, 0), (-1, 0), 'BOTTOM'),
         )
 
-    tableHead = tableBase+(
-        ('FONT', (0, 0), (-1, 0), 'ReportingBold', 8),
+    obj.tableHead = obj.tableBase+(
+        ('FONT', (0, 0), (-1, 0), 'ReportingBold', base_size),
         ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
         ('TOPPADDING', (0, 0), (-1, -1), 1),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
         ('LINEABOVE', (0, 0), (-1, 0), 0.2, colors.black),
         ('LINEBELOW', (0, 0), (-1, 0), 0.2, colors.black),
         )
+
+    return obj
 
 
 def sanitize(text):
@@ -191,6 +199,8 @@ class PDFDocument(object):
         #self.doc.setProgressCallBack(self.__progresshandler)
         self.story = []
 
+        self.style = style(8)
+
     def init_frames(self):
         self.frame = Frame(2.6*cm, 2*cm, 16.4*cm, 25*cm, showBoundary=self.show_boundaries)
 
@@ -201,25 +211,29 @@ class PDFDocument(object):
             ])
         self.story.append(NextPageTemplate('Later'))
 
-    def _p(default_style):
-        def _fn(self, text=u'', style=None):
-            self.story.append(Paragraph(text, style or default_style))
-        return _fn
+    def p(self, text, style=None):
+        self.story.append(Paragraph(text, style or self.style.normal))
 
-    p = _p(Style.normal)
-    h1 = _p(Style.heading1)
-    h2 = _p(Style.heading2)
-    small = _p(Style.small)
-    smaller = _p(Style.smaller)
+    def h1h(self, text, style=None):
+        self.story.append(Paragraph(text, style or self.style.heading1))
+
+    def h2(self, text, style=None):
+        self.story.append(Paragraph(text, style or self.style.heading2))
+
+    def small(self, text, style=None):
+        self.story.append(Paragraph(text, style or self.style.small))
+
+    def smaller(self, text, style=None):
+        self.story.append(Paragraph(text, style or self.style.smaller))
 
     def p_markup(self, text, style=None):
-        self.story.append(MarkupParagraph(text, style or Style.normal))
+        self.story.append(MarkupParagraph(text, style or self.style.normal))
 
     def spacer(self, height=0.6*cm):
         self.story.append(Spacer(1, height))
 
     def table(self, data, columns, style=None):
-        self.story.append(Table(data, columns, style=style or Style.table))
+        self.story.append(Table(data, columns, style=style or self.style.table))
 
     def hr(self):
         self.story.append(HRFlowable(width='100%', thickness=0.2, color=black))
@@ -232,7 +246,7 @@ class PDFDocument(object):
         obj._doc = self.doc
         self.story.append(obj)
 
-        self.story.append(BottomTable(data, columns, style=style or Style.table))
+        self.story.append(BottomTable(data, columns, style=style or self.style.table))
 
     def generate(self):
         self.doc.multiBuild(self.story)
