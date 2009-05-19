@@ -345,24 +345,6 @@ class ReportingPDFDocument(PDFDocument):
 
         self.p('\n'.join(address))
 
-    def payment_info(self, invoice, bankaccount):
-        self.bottom_table((
-                (_('Kindly remit the outstanding amount within the next %(days)s days (not later than %(date)s) to the following account:') % {
-                    'days': invoice.payment_within, 'date': invoice.due_date.strftime('%d.%m.%Y')}, ''),
-                ('', ''),
-                (_('Bank'), bankaccount.bank),
-                (_('Account number'), bankaccount.account),
-                (_('Clearing number'), bankaccount.clearing_nr),
-                (_('IBAN-No.'), bankaccount.iban),
-                (_('BIC/SWIFT'), bankaccount.bic),
-            ),
-            (REPORTING_PDF_LEFT_OFFSET, REPORTING_PDF_PAGE_WIDTH-REPORTING_PDF_LEFT_OFFSET),
-            style=Style.tableLLR+(
-                ('SPAN', (0, 0), (-1, 0)),
-                ('FONT', (0, 0), (-1, 0), 'ReportingBold', 8),
-                )
-            )
-
     def header(self, canvas, text):
         canvas.saveState()
         canvas.setFont('ReportingBold', 10)
