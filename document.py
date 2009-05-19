@@ -12,6 +12,7 @@ from reportlab.pdfgen import canvas
 from reportlab.platypus import BaseDocTemplate, Paragraph, Spacer, Frame,\
     PageTemplate, NextPageTemplate, PageBreak, Table, TableStyle, Image,\
     Preformatted, Flowable, XPreformatted, KeepTogether, CondPageBreak
+from reportlab.platypus.flowables import HRFlowable
 
 import os
 import copy
@@ -260,7 +261,7 @@ class PDFDocument(object):
     def p(self, text, style=None):
         self.story.append(Paragraph(text, style or self.style.normal))
 
-    def h1h(self, text, style=None):
+    def h1(self, text, style=None):
         self.story.append(Paragraph(text, style or self.style.heading1))
 
     def h2(self, text, style=None):
@@ -282,7 +283,10 @@ class PDFDocument(object):
         self.story.append(Table(data, columns, style=style or self.style.table))
 
     def hr(self):
-        self.story.append(HRFlowable(width='100%', thickness=0.2, color=black))
+        self.story.append(HRFlowable(width='100%', thickness=0.2, color=colors.black))
+
+    def hr_mini(self):
+        self.story.append(HRFlowable(width='100%', thickness=0.2, color=colors.grey))
 
     def pagebreak(self):
         self.story.append(PageBreak())
