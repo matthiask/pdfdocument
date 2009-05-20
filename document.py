@@ -163,12 +163,14 @@ class ReportingDocTemplate(BaseDocTemplate):
     def __init__(self, *args, **kwargs):
         BaseDocTemplate.__init__(self, *args, **kwargs)
         self.bottomTableHeight = 0
+        self.bottomTableIsLast = False
         self.numPages = 0
         self._lastNumPages = 0
         self.setProgressCallBack(self._onProgress_cb)
 
     def afterFlowable(self, flowable):
         self.numPages = max(self.canv.getPageNumber(), self.numPages)
+        self.bottomTableIsLast = False
 
         if isinstance(flowable, BottomTable):
             self.bottomTableHeight = reduce(
@@ -176,8 +178,7 @@ class ReportingDocTemplate(BaseDocTemplate):
                 flowable._rowHeights,
                 0)
 
-            # evil hack... I don't exactly know why this is necessary (mk)
-            self.numPages -= 1
+            self.bottomTableIsLast = True
 
     # here the real hackery starts ... thanks Ralph
     def _allSatisfied(self):
@@ -190,12 +191,35 @@ class ReportingDocTemplate(BaseDocTemplate):
         if what=='STARTED':
             self._lastnumPages = self.numPages
 
+    def page_index_string(self):
+        """
+        Return page index string for the footer.
+
+        This is the ugliest thing I've done in the last two years.
+        For this I'll burn in programmer hell.
+
+        At least it is contained here.
+
+        (Determining the total number of pages in reportlab is a mess anyway...)
+        """
+
+        current_page = self.page
+        total_pages = self.numPages
+
+        if self.bottomTableHeight:
+            total_pages -= 1
+
+            if self.bottomTableIsLast and current_page==1:
+                total_pages = max(1, total_pages-1)
+
+        return _('Page %(current_page)d of %(total_pages)d') % {
+            'current_page': current_page, 'total_pages': total_pages}
+
 
 def reporting_pdf_draw_page_template(c, doc):
     doc.PDFDocument.header(c, settings.REPORTING_PDF_HEADER)
     doc.PDFDocument.footer(c, (
-        _('Page %(current_page)d of %(total_pages)d') % {
-        'current_page': doc.page, 'total_pages': doc.numPages},
+        doc.page_index_string(),
         ))
 
 
