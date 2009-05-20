@@ -229,7 +229,6 @@ class PDFDocument(object):
     def __init__(self, *args, **kwargs):
         self.doc = ReportingDocTemplate(*args, **kwargs)
         self.doc.PDFDocument = self
-        #self.doc.setProgressCallBack(self.__progresshandler)
         self.story = []
 
     def init_frames(self):
