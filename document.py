@@ -26,12 +26,16 @@ from django.utils.translation import ugettext as _
 
 pdfmetrics.registerFont(TTFont('ReportingRegular', os.path.join(
     settings.FONT_PATH, settings.FONT_REGULAR)))
+pdfmetrics.registerFont(TTFont('ReportingItalic', os.path.join(
+    settings.FONT_PATH, settings.FONT_ITALIC)))
 pdfmetrics.registerFont(TTFont('ReportingBold', os.path.join(
     settings.FONT_PATH, settings.FONT_BOLD)))
+pdfmetrics.registerFont(TTFont('ReportingBoldItalic', os.path.join(
+    settings.FONT_PATH, settings.FONT_BOLDITALIC)))
 addMapping('Reporting', 0, 0, 'ReportingRegular') # regular
-addMapping('Reporting', 0, 1, 'ReportingRegular') # italic
+addMapping('Reporting', 0, 1, 'ReportingItalic') # italic
 addMapping('Reporting', 1, 0, 'ReportingBold') # bold
-addMapping('Reporting', 1, 1, 'ReportingBold') # bold & italic
+addMapping('Reporting', 1, 1, 'ReportingBoldItalic') # bold & italic
 
 
 class Empty(object):
@@ -77,7 +81,7 @@ def style(base_size):
     obj.right.alignment = TA_RIGHT
 
     obj.indented = copy.deepcopy(obj.normal)
-    obj.indented.leftIndent = 0.3*cm
+    obj.indented.leftIndent = 0.5*cm
 
     # alignment = TA_RIGHT
     # leftIndent = 0.4*cm
