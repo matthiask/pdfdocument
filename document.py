@@ -65,6 +65,13 @@ def style(base_size):
     obj.heading2.leading = 1.75*base_size
     #heading2.leading = 5*mm
 
+    obj.heading3 = copy.deepcopy(obj.normal)
+    obj.heading3.fontName = 'ReportingBold'
+    obj.heading3.fontSize = 1.1*base_size
+    obj.heading3.leading = 1.5*base_size
+    obj.heading3.textColor = '#666666'
+    #heading3.leading = 5*mm
+
     obj.small = copy.deepcopy(obj.normal)
     obj.small.fontSize = base_size-0.9
 
@@ -293,6 +300,9 @@ class PDFDocument(object):
 
     def h2(self, text, style=None):
         self.story.append(Paragraph(text, style or self.style.heading2))
+
+    def h3(self, text, style=None):
+        self.story.append(Paragraph(text, style or self.style.heading3))
 
     def small(self, text, style=None):
         self.story.append(Paragraph(text, style or self.style.small))
