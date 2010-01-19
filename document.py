@@ -42,41 +42,41 @@ class Empty(object):
     pass
 
 
-def style(base_size):
+def style(metronom_size):
     obj = Empty()
 
     _styles = getSampleStyleSheet()
 
     obj.normal = _styles['Normal']
     obj.normal.fontName = 'ReportingRegular'
-    obj.normal.fontSize = base_size
+    obj.normal.fontSize = metronom_size
     obj.normal.firstLineIndent = 0
     #normal.textColor = '#0e2b58'
 
     obj.heading1 = copy.deepcopy(obj.normal)
     obj.heading1.fontName = 'ReportingRegular'
-    obj.heading1.fontSize = 1.5*base_size
-    obj.heading1.leading = 2*base_size
+    obj.heading1.fontSize = 1.5*metronom_size
+    obj.heading1.leading = 2*metronom_size
     #heading1.leading = 10*mm
 
     obj.heading2 = copy.deepcopy(obj.normal)
     obj.heading2.fontName = 'ReportingBold'
-    obj.heading2.fontSize = 1.25*base_size
-    obj.heading2.leading = 1.75*base_size
+    obj.heading2.fontSize = 1.25*metronom_size
+    obj.heading2.leading = 1.75*metronom_size
     #heading2.leading = 5*mm
 
     obj.heading3 = copy.deepcopy(obj.normal)
     obj.heading3.fontName = 'ReportingBold'
-    obj.heading3.fontSize = 1.1*base_size
-    obj.heading3.leading = 1.5*base_size
+    obj.heading3.fontSize = 1.1*metronom_size
+    obj.heading3.leading = 1.5*metronom_size
     obj.heading3.textColor = '#666666'
     #heading3.leading = 5*mm
 
     obj.small = copy.deepcopy(obj.normal)
-    obj.small.fontSize = base_size-0.9
+    obj.small.fontSize = metronom_size-0.9
 
     obj.smaller = copy.deepcopy(obj.normal)
-    obj.smaller.fontSize = base_size*0.75
+    obj.smaller.fontSize = metronom_size*0.75
 
     obj.bold = copy.deepcopy(obj.normal)
     obj.bold.fontName = 'ReportingBold'
@@ -96,7 +96,7 @@ def style(base_size):
     # spaceAfter = 0
 
     obj.tableBase = (
-        ('FONT', (0, 0), (-1, -1), 'ReportingRegular', base_size),
+        ('FONT', (0, 0), (-1, -1), 'ReportingRegular', metronom_size),
         ('TOPPADDING', (0, 0), (-1, -1), 0),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
         ('LEFTPADDING', (0, 0), (-1, -1), 0),
@@ -115,7 +115,7 @@ def style(base_size):
         )
 
     obj.tableHead = obj.tableBase+(
-        ('FONT', (0, 0), (-1, 0), 'ReportingBold', base_size),
+        ('FONT', (0, 0), (-1, 0), 'ReportingBold', metronom_size),
         ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
         ('TOPPADDING', (0, 0), (-1, -1), 1),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
@@ -384,7 +384,7 @@ class PDFDocument(object):
 
         logo = getattr(settings, 'PDF_LOGO_SETTINGS', None)
         if logo:
-            canvas.drawImage(os.path.join(settings.APP_BASEDIR, 'base', 'reporting', 'images', logo[0]),
+            canvas.drawImage(os.path.join(settings.APP_BASEDIR, 'metronom', 'reporting', 'images', logo[0]),
                 **logo[1])
 
         canvas.restoreState()

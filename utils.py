@@ -20,6 +20,6 @@ def worklog_period(obj):
 
 
 def worklog_period_string(obj):
-    start, end = worklog_period(obj)
+    start, end = obj.worklog_period()
 
     return u'%s - %s' % (start.strftime('%d.%m.%Y'), end.strftime('%d.%m.%Y'))
