@@ -1,6 +1,10 @@
 from datetime import date
+import re
 
 from django.db.models import Max, Min
+from django.http import HttpResponse
+
+from metronom.reporting.document import PDFDocument
 
 
 def worklog_period(obj):
@@ -23,3 +27,13 @@ def worklog_period_string(obj):
     start, end = obj.worklog_period()
 
     return u'%s - %s' % (start.strftime('%d.%m.%Y'), end.strftime('%d.%m.%Y'))
+
+
+FILENAME_RE = re.compile(r'[^A-Za-z0-9\-\.]+')
+
+def pdf_response(filename):
+    response = HttpResponse(mimetype='application/pdf')
+    response['Content-Disposition'] = 'inline; filename=%s.pdf' %\
+        FILENAME_RE.sub('-', filename)
+
+    return PDFDocument(response), response
