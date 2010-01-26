@@ -404,10 +404,10 @@ class PDFDocument(object):
         self.smaller(settings.REPORTING_PDF_ADDRESSLINE)
         self.spacer(2*mm)
 
-    def address(self, obj, prefix):
+    def address(self, obj, prefix=''):
         data = {}
         for field in ('company', 'manner_of_address', 'first_name', 'last_name', 'address', 'zip_code', 'city'):
-            data[field] = getattr(obj, '%s_%s' % (prefix, field))
+            data[field] = getattr(obj, '%s%s' % (prefix, field))
 
         address = []
         if data['company']:
