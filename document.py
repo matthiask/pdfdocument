@@ -242,9 +242,6 @@ class PDFDocument(object):
         self.doc.PDFDocument = self
         self.story = []
 
-    def init_frames(self):
-        self.frame = Frame(2.6*cm, 2*cm, 16.4*cm, 25*cm, showBoundary=self.show_boundaries)
-
     def init_templates(self, page_fn, page_fn_later=None):
         self.doc.addPageTemplates([
             PageTemplate(id='First', frames=[self.frame], onPage=page_fn),
