@@ -167,7 +167,7 @@ class BottomSpacer(Spacer):
         if my_height<=0:
             return (self.width, availHeight)
         else:
-            return (self.width, my_height-10)
+            return (self.width, my_height)
 
 
 class ReportingDocTemplate(BaseDocTemplate):
