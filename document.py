@@ -42,90 +42,6 @@ class Empty(object):
     pass
 
 
-def style(metronom_size):
-    obj = Empty()
-
-    _styles = getSampleStyleSheet()
-
-    obj.normal = _styles['Normal']
-    obj.normal.fontName = 'ReportingRegular'
-    obj.normal.fontSize = metronom_size
-    obj.normal.firstLineIndent = 0
-    #normal.textColor = '#0e2b58'
-
-    obj.heading1 = copy.deepcopy(obj.normal)
-    obj.heading1.fontName = 'ReportingRegular'
-    obj.heading1.fontSize = 1.5*metronom_size
-    obj.heading1.leading = 2*metronom_size
-    #heading1.leading = 10*mm
-
-    obj.heading2 = copy.deepcopy(obj.normal)
-    obj.heading2.fontName = 'ReportingBold'
-    obj.heading2.fontSize = 1.25*metronom_size
-    obj.heading2.leading = 1.75*metronom_size
-    #heading2.leading = 5*mm
-
-    obj.heading3 = copy.deepcopy(obj.normal)
-    obj.heading3.fontName = 'ReportingBold'
-    obj.heading3.fontSize = 1.1*metronom_size
-    obj.heading3.leading = 1.5*metronom_size
-    obj.heading3.textColor = '#666666'
-    #heading3.leading = 5*mm
-
-    obj.small = copy.deepcopy(obj.normal)
-    obj.small.fontSize = metronom_size-0.9
-
-    obj.smaller = copy.deepcopy(obj.normal)
-    obj.smaller.fontSize = metronom_size*0.75
-
-    obj.bold = copy.deepcopy(obj.normal)
-    obj.bold.fontName = 'ReportingBold'
-
-    obj.boldr = copy.deepcopy(obj.bold)
-    obj.boldr.alignment = TA_RIGHT
-
-    obj.right = copy.deepcopy(obj.normal)
-    obj.right.alignment = TA_RIGHT
-
-    obj.indented = copy.deepcopy(obj.normal)
-    obj.indented.leftIndent = 0.5*cm
-
-    # alignment = TA_RIGHT
-    # leftIndent = 0.4*cm
-    # spaceBefore = 0
-    # spaceAfter = 0
-
-    obj.tableBase = (
-        ('FONT', (0, 0), (-1, -1), 'ReportingRegular', metronom_size),
-        ('TOPPADDING', (0, 0), (-1, -1), 0),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
-        ('LEFTPADDING', (0, 0), (-1, -1), 0),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 0),
-        ('FIRSTLINEINDENT', (0, 0), (-1, -1), 0),
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        )
-
-    obj.table = obj.tableBase+(
-        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
-        )
-
-    obj.tableLLR = obj.tableBase+(
-        ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),
-        ('VALIGN', (0, 0), (-1, 0), 'BOTTOM'),
-        )
-
-    obj.tableHead = obj.tableBase+(
-        ('FONT', (0, 0), (-1, 0), 'ReportingBold', metronom_size),
-        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
-        ('TOPPADDING', (0, 0), (-1, -1), 1),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
-        ('LINEABOVE', (0, 0), (-1, 0), 0.2, colors.black),
-        ('LINEBELOW', (0, 0), (-1, 0), 0.2, colors.black),
-        )
-
-    return obj
-
-
 def sanitize(text):
     REPLACE_MAP = [ (u'&', '&#38;'),
                     (u'<', '&#60;'),
@@ -242,6 +158,87 @@ class PDFDocument(object):
         self.doc.PDFDocument = self
         self.story = []
 
+    def generate_style(self, base_size):
+        self.style = Empty()
+
+        _styles = getSampleStyleSheet()
+
+        self.style.normal = _styles['Normal']
+        self.style.normal.fontName = 'ReportingRegular'
+        self.style.normal.fontSize = base_size
+        self.style.normal.firstLineIndent = 0
+        #normal.textColor = '#0e2b58'
+
+        self.style.heading1 = copy.deepcopy(self.style.normal)
+        self.style.heading1.fontName = 'ReportingRegular'
+        self.style.heading1.fontSize = 1.5*base_size
+        self.style.heading1.leading = 2*base_size
+        #heading1.leading = 10*mm
+
+        self.style.heading2 = copy.deepcopy(self.style.normal)
+        self.style.heading2.fontName = 'ReportingBold'
+        self.style.heading2.fontSize = 1.25*base_size
+        self.style.heading2.leading = 1.75*base_size
+        #heading2.leading = 5*mm
+
+        self.style.heading3 = copy.deepcopy(self.style.normal)
+        self.style.heading3.fontName = 'ReportingBold'
+        self.style.heading3.fontSize = 1.1*base_size
+        self.style.heading3.leading = 1.5*base_size
+        self.style.heading3.textColor = '#666666'
+        #heading3.leading = 5*mm
+
+        self.style.small = copy.deepcopy(self.style.normal)
+        self.style.small.fontSize = base_size-0.9
+
+        self.style.smaller = copy.deepcopy(self.style.normal)
+        self.style.smaller.fontSize = base_size*0.75
+
+        self.style.bold = copy.deepcopy(self.style.normal)
+        self.style.bold.fontName = 'ReportingBold'
+
+        self.style.boldr = copy.deepcopy(self.style.bold)
+        self.style.boldr.alignment = TA_RIGHT
+
+        self.style.right = copy.deepcopy(self.style.normal)
+        self.style.right.alignment = TA_RIGHT
+
+        self.style.indented = copy.deepcopy(self.style.normal)
+        self.style.indented.leftIndent = 0.5*cm
+
+        # alignment = TA_RIGHT
+        # leftIndent = 0.4*cm
+        # spaceBefore = 0
+        # spaceAfter = 0
+
+        self.style.tableBase = (
+            ('FONT', (0, 0), (-1, -1), 'ReportingRegular', base_size),
+            ('TOPPADDING', (0, 0), (-1, -1), 0),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
+            ('LEFTPADDING', (0, 0), (-1, -1), 0),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 0),
+            ('FIRSTLINEINDENT', (0, 0), (-1, -1), 0),
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            )
+
+        self.style.table = self.style.tableBase+(
+            ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+            )
+
+        self.style.tableLLR = self.style.tableBase+(
+            ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),
+            ('VALIGN', (0, 0), (-1, 0), 'BOTTOM'),
+            )
+
+        self.style.tableHead = self.style.tableBase+(
+            ('FONT', (0, 0), (-1, 0), 'ReportingBold', base_size),
+            ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+            ('TOPPADDING', (0, 0), (-1, -1), 1),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+            ('LINEABOVE', (0, 0), (-1, 0), 0.2, colors.black),
+            ('LINEBELOW', (0, 0), (-1, 0), 0.2, colors.black),
+            )
+
     def init_templates(self, page_fn, page_fn_later=None):
         self.doc.addPageTemplates([
             PageTemplate(id='First', frames=[self.frame], onPage=page_fn),
@@ -261,7 +258,7 @@ class PDFDocument(object):
             ])
         self.story.append(NextPageTemplate('Later'))
 
-        self.style = style(8)
+        self.generate_style(8)
 
     def init_confidential_report(self, page_fn=reporting_pdf_draw_page_template, page_fn_later=None):
         if not page_fn_later:
@@ -287,7 +284,7 @@ class PDFDocument(object):
             ])
         self.story.append(NextPageTemplate('Later'))
 
-        self.style = style(9)
+        self.generate_style(9)
 
     def p(self, text, style=None):
         self.story.append(Paragraph(text, style or self.style.normal))
