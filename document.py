@@ -24,18 +24,18 @@ from django.utils.html import escape
 from django.utils.translation import ugettext as _
 
 
-pdfmetrics.registerFont(TTFont('ReportingRegular', os.path.join(
+pdfmetrics.registerFont(TTFont('Reporting-Regular', os.path.join(
     settings.FONT_PATH, settings.FONT_REGULAR)))
-pdfmetrics.registerFont(TTFont('ReportingItalic', os.path.join(
+pdfmetrics.registerFont(TTFont('Reporting-Italic', os.path.join(
     settings.FONT_PATH, settings.FONT_ITALIC)))
-pdfmetrics.registerFont(TTFont('ReportingBold', os.path.join(
+pdfmetrics.registerFont(TTFont('Reporting-Bold', os.path.join(
     settings.FONT_PATH, settings.FONT_BOLD)))
-pdfmetrics.registerFont(TTFont('ReportingBoldItalic', os.path.join(
+pdfmetrics.registerFont(TTFont('Reporting-BoldItalic', os.path.join(
     settings.FONT_PATH, settings.FONT_BOLDITALIC)))
-addMapping('Reporting', 0, 0, 'ReportingRegular') # regular
-addMapping('Reporting', 0, 1, 'ReportingItalic') # italic
-addMapping('Reporting', 1, 0, 'ReportingBold') # bold
-addMapping('Reporting', 1, 1, 'ReportingBoldItalic') # bold & italic
+addMapping('Reporting', 0, 0, 'Reporting-Regular') # regular
+addMapping('Reporting', 0, 1, 'Reporting-Italic') # italic
+addMapping('Reporting', 1, 0, 'Reporting-Bold') # bold
+addMapping('Reporting', 1, 1, 'Reporting-BoldItalic') # bold & italic
 
 
 class Empty(object):
@@ -164,25 +164,25 @@ class PDFDocument(object):
         _styles = getSampleStyleSheet()
 
         self.style.normal = _styles['Normal']
-        self.style.normal.fontName = 'ReportingRegular'
+        self.style.normal.fontName = 'Reporting-Regular'
         self.style.normal.fontSize = base_size
         self.style.normal.firstLineIndent = 0
         #normal.textColor = '#0e2b58'
 
         self.style.heading1 = copy.deepcopy(self.style.normal)
-        self.style.heading1.fontName = 'ReportingRegular'
+        self.style.heading1.fontName = 'Reporting-Regular'
         self.style.heading1.fontSize = 1.5*base_size
         self.style.heading1.leading = 2*base_size
         #heading1.leading = 10*mm
 
         self.style.heading2 = copy.deepcopy(self.style.normal)
-        self.style.heading2.fontName = 'ReportingBold'
+        self.style.heading2.fontName = 'Reporting-Bold'
         self.style.heading2.fontSize = 1.25*base_size
         self.style.heading2.leading = 1.75*base_size
         #heading2.leading = 5*mm
 
         self.style.heading3 = copy.deepcopy(self.style.normal)
-        self.style.heading3.fontName = 'ReportingBold'
+        self.style.heading3.fontName = 'Reporting-Bold'
         self.style.heading3.fontSize = 1.1*base_size
         self.style.heading3.leading = 1.5*base_size
         self.style.heading3.textColor = '#666666'
@@ -195,7 +195,7 @@ class PDFDocument(object):
         self.style.smaller.fontSize = base_size*0.75
 
         self.style.bold = copy.deepcopy(self.style.normal)
-        self.style.bold.fontName = 'ReportingBold'
+        self.style.bold.fontName = 'Reporting-Bold'
 
         self.style.boldr = copy.deepcopy(self.style.bold)
         self.style.boldr.alignment = TA_RIGHT
@@ -212,7 +212,7 @@ class PDFDocument(object):
         # spaceAfter = 0
 
         self.style.tableBase = (
-            ('FONT', (0, 0), (-1, -1), 'ReportingRegular', base_size),
+            ('FONT', (0, 0), (-1, -1), 'Reporting-Regular', base_size),
             ('TOPPADDING', (0, 0), (-1, -1), 0),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
             ('LEFTPADDING', (0, 0), (-1, -1), 0),
@@ -231,7 +231,7 @@ class PDFDocument(object):
             )
 
         self.style.tableHead = self.style.tableBase+(
-            ('FONT', (0, 0), (-1, 0), 'ReportingBold', base_size),
+            ('FONT', (0, 0), (-1, 0), 'Reporting-Bold', base_size),
             ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
             ('TOPPADDING', (0, 0), (-1, -1), 1),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
@@ -361,15 +361,15 @@ class PDFDocument(object):
 
     def header(self, canvas, text):
         canvas.saveState()
-        canvas.setFont('ReportingBold', 10)
+        canvas.setFont('Reporting-Bold', 10)
         canvas.drawString(26*mm, 284*mm, text[0])
-        canvas.setFont('ReportingRegular', 10)
+        canvas.setFont('Reporting-Regular', 10)
         canvas.drawString(26*mm+settings.REPORTING_PDF_LEFT_OFFSET, 284*mm, text[1])
         canvas.restoreState()
 
     def footer(self, canvas, texts):
         canvas.saveState()
-        canvas.setFont('ReportingRegular', 6)
+        canvas.setFont('Reporting-Regular', 6)
         for i, text in enumerate(reversed(texts)):
             canvas.drawRightString(190*mm, (8+3*i)*mm, text)
 
