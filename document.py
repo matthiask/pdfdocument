@@ -32,10 +32,10 @@ pdfmetrics.registerFont(TTFont('Reporting-Bold', os.path.join(
     settings.FONT_PATH, settings.FONT_BOLD)))
 pdfmetrics.registerFont(TTFont('Reporting-BoldItalic', os.path.join(
     settings.FONT_PATH, settings.FONT_BOLDITALIC)))
-addMapping('Reporting', 0, 0, 'Reporting-Regular') # regular
-addMapping('Reporting', 0, 1, 'Reporting-Italic') # italic
-addMapping('Reporting', 1, 0, 'Reporting-Bold') # bold
-addMapping('Reporting', 1, 1, 'Reporting-BoldItalic') # bold & italic
+addMapping('Reporting-Regular', 0, 0, 'Reporting-Regular') # regular
+addMapping('Reporting-Regular', 0, 1, 'Reporting-Italic') # italic
+addMapping('Reporting-Regular', 1, 0, 'Reporting-Bold') # bold
+addMapping('Reporting-Regular', 1, 1, 'Reporting-BoldItalic') # bold & italic
 
 
 class Empty(object):
