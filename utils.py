@@ -33,7 +33,7 @@ FILENAME_RE = re.compile(r'[^A-Za-z0-9\-\.]+')
 
 def pdf_response(filename):
     response = HttpResponse(mimetype='application/pdf')
-    response['Content-Disposition'] = 'inline; filename=%s.pdf' %\
+    response['Content-Disposition'] = 'attachment; filename=%s.pdf' %\
         FILENAME_RE.sub('-', filename)
 
     return PDFDocument(response), response
