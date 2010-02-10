@@ -86,6 +86,13 @@ class BottomSpacer(Spacer):
             return (self.width, my_height)
 
 
+class RestartPageBreak(PageBreak):
+    """
+    Insert a page break and restart the page numbering.
+    """
+    pass
+
+
 class ReportingDocTemplate(BaseDocTemplate):
     def __init__(self, *args, **kwargs):
         BaseDocTemplate.__init__(self, *args, **kwargs)
@@ -94,6 +101,11 @@ class ReportingDocTemplate(BaseDocTemplate):
         self.numPages = 0
         self._lastNumPages = 0
         self.setProgressCallBack(self._onProgress_cb)
+
+        # For batch reports with several PDFs concatenated
+        self.restartDoc = False
+        self.restartDocIndex = 0
+        self.restartDocPageNumbers = []
 
     def afterFlowable(self, flowable):
         self.numPages = max(self.canv.getPageNumber(), self.numPages)
@@ -107,6 +119,11 @@ class ReportingDocTemplate(BaseDocTemplate):
 
             self.bottomTableIsLast = True
 
+        elif isinstance(flowable, RestartPageBreak):
+            self.restartDoc = True
+            self.restartDocIndex += 1
+            self.restartDocPageNumbers.append(self.page)
+
     # here the real hackery starts ... thanks Ralph
     def _allSatisfied(self):
         """ Called by multi-build - are all cross-references resolved? """
@@ -117,6 +134,8 @@ class ReportingDocTemplate(BaseDocTemplate):
     def _onProgress_cb(self, what, arg):
         if what=='STARTED':
             self._lastnumPages = self.numPages
+            self.restartDocIndex = 0
+            #self.restartDocPageNumbers = []
 
     def page_index_string(self):
         """
@@ -132,6 +151,14 @@ class ReportingDocTemplate(BaseDocTemplate):
 
         current_page = self.page
         total_pages = self.numPages
+
+        if self.restartDoc:
+            if self.restartDocIndex:
+                current_page = current_page - self.restartDocPageNumbers[self.restartDocIndex-1] + 1
+                if len(self.restartDocPageNumbers) > self.restartDocIndex:
+                    total_pages = self.restartDocPageNumbers[self.restartDocIndex] - self.restartDocPageNumbers[self.restartDocIndex-1] + 1
+            else:
+                total_pages = self.restartDocPageNumbers[0]
 
         if self.bottomTableHeight:
             total_pages -= 1
@@ -288,7 +315,7 @@ class PDFDocument(object):
 
     def restart(self):
         self.story.append(NextPageTemplate('First'))
-        self.pagebreak()
+        self.story.append(RestartPageBreak())
 
     def p(self, text, style=None):
         self.story.append(Paragraph(text, style or self.style.normal))
