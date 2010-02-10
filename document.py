@@ -288,6 +288,7 @@ class PDFDocument(object):
 
     def restart(self):
         self.story.append(NextPageTemplate('First'))
+        self.pagebreak()
 
     def p(self, text, style=None):
         self.story.append(Paragraph(text, style or self.style.normal))
