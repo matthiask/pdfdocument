@@ -286,6 +286,9 @@ class PDFDocument(object):
 
         self.generate_style(9)
 
+    def restart(self):
+        self.story.append(NextPageTemplate('First'))
+
     def p(self, text, style=None):
         self.story.append(Paragraph(text, style or self.style.normal))
 
