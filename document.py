@@ -187,6 +187,7 @@ class PDFDocument(object):
 
     def generate_style(self, base_size):
         self.style = Empty()
+        self.style.baseSize = base_size
 
         _styles = getSampleStyleSheet()
 
@@ -265,6 +266,13 @@ class PDFDocument(object):
             ('LINEABOVE', (0, 0), (-1, 0), 0.2, colors.black),
             ('LINEBELOW', (0, 0), (-1, 0), 0.2, colors.black),
             )
+
+        self.style.tableOptional = self.style.tableBase+(
+                ('FONT', (0, 0), (-1, 0), 'Reporting-Italic', self.style.baseSize),
+                ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+                ('RIGHTPADDING', (1, 0), (-1, -1), 2*cm),
+                )
 
     def init_templates(self, page_fn, page_fn_later=None):
         self.doc.addPageTemplates([
