@@ -234,6 +234,9 @@ class PDFDocument(object):
         self.style.indented = copy.deepcopy(self.style.normal)
         self.style.indented.leftIndent = 0.5*cm
 
+        self.style.tablenotes = copy.deepcopy(self.style.indented)
+        self.style.tablenotes.fontName = 'Reporting-Italic'
+
         # alignment = TA_RIGHT
         # leftIndent = 0.4*cm
         # spaceBefore = 0
