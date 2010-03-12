@@ -179,6 +179,7 @@ def reporting_pdf_draw_page_template(c, doc):
 
 class PDFDocument(object):
     show_boundaries = False
+    _watermark = None
 
     def __init__(self, *args, **kwargs):
         self.doc = ReportingDocTemplate(*args, **kwargs)
@@ -324,6 +325,9 @@ class PDFDocument(object):
 
         self.generate_style(9)
 
+    def watermark(self, watermark=None):
+        self._watermark = watermark
+
     def restart(self):
         self.story.append(NextPageTemplate('First'))
         self.story.append(RestartPageBreak())
@@ -407,6 +411,13 @@ class PDFDocument(object):
         canvas.drawString(26*mm, 284*mm, text[0])
         canvas.setFont('Reporting-Regular', 10)
         canvas.drawString(26*mm+settings.REPORTING_PDF_LEFT_OFFSET, 284*mm, text[1])
+
+        if self._watermark:
+            canvas.rotate(60)
+            canvas.setFillColorRGB(0.96, 0.96, 0.96)
+            canvas.setFont('Reporting-Regular', 150)
+            canvas.drawCentredString(195*mm, -30*mm, self._watermark)
+
         canvas.restoreState()
 
     def footer(self, canvas, texts):
