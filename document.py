@@ -306,6 +306,7 @@ class PDFDocument(object):
         def _first_page_fn(canvas, doc):
             page_fn(canvas, doc)
             doc.PDFDocument.confidential(canvas)
+            doc.PDFDocument.watermark('CONFIDENTIAL')
 
         self.init_report(page_fn=_first_page_fn, page_fn_later=page_fn_later)
 
