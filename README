@@ -1,0 +1,8 @@
+===========
+PDFDocument
+===========
+
+Wrapper for ReportLab which allows easy creation of PDF documents.
+
+Not fully separated from the code base it came from yet.
+
