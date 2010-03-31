@@ -163,8 +163,7 @@ class ReportingDocTemplate(BaseDocTemplate):
             if self.bottomTableIsLast and current_page==1:
                 total_pages = max(1, total_pages-1)
 
-        return _('Page %(current_page)d of %(total_pages)d') % {
-            'current_page': current_page, 'total_pages': total_pages}
+        return self.PDFDocument.page_index_string(current_page, total_pages)
 
 
 def reporting_pdf_draw_page_template(c, doc):
@@ -182,6 +181,12 @@ class PDFDocument(object):
         self.doc = ReportingDocTemplate(*args, **kwargs)
         self.doc.PDFDocument = self
         self.story = []
+
+    def page_index_string(self, current_page, total_pages):
+        return 'Page %(current_page)d of %(total_pages)d' % {
+            'current_page': current_page,
+            'total_pages': total_pages,
+            }
 
     def generate_style(self, base_size):
         self.style = Empty()
