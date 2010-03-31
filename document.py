@@ -19,9 +19,6 @@ import copy
 from datetime import date, datetime
 
 from django.conf import settings
-from django.utils.encoding import force_unicode
-from django.utils.html import escape
-from django.utils.translation import ugettext as _
 
 
 pdfmetrics.registerFont(TTFont('Reporting-Regular', os.path.join(
