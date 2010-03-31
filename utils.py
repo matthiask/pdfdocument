@@ -4,7 +4,7 @@ import re
 from django.db.models import Max, Min
 from django.http import HttpResponse
 
-from metronom.reporting.document import PDFDocument
+from pdfdocument.document import PDFDocument
 
 
 def worklog_period(obj):
