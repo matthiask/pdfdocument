@@ -184,51 +184,55 @@ class PDFDocument(object):
         self.doc.PDFDocument = self
         self.story = []
 
+        self.font_name = kwargs.get('font_name', 'Helvetica')
+        self.font_size = kwargs.get('font_size', 9)
+
     def page_index_string(self, current_page, total_pages):
         return 'Page %(current_page)d of %(total_pages)d' % {
             'current_page': current_page,
             'total_pages': total_pages,
             }
 
-    def generate_style(self, base_size):
+    def generate_style(self, font_name=None, font_size=None):
         self.style = Empty()
-        self.style.baseSize = base_size
+        self.style.fontName = font_name or self.font_name
+        self.style.fontSize = font_size or self.font_size
 
         _styles = getSampleStyleSheet()
 
         self.style.normal = _styles['Normal']
-        self.style.normal.fontName = 'Reporting-Regular'
-        self.style.normal.fontSize = base_size
+        self.style.normal.fontName = '%s-Regular' % self.style.fontName
+        self.style.normal.fontSize = self.style.fontSize
         self.style.normal.firstLineIndent = 0
         #normal.textColor = '#0e2b58'
 
         self.style.heading1 = copy.deepcopy(self.style.normal)
-        self.style.heading1.fontName = 'Reporting-Regular'
-        self.style.heading1.fontSize = 1.5*base_size
-        self.style.heading1.leading = 2*base_size
+        self.style.heading1.fontName = '%s-Regular' % self.style.fontName
+        self.style.heading1.fontSize = 1.5 * self.style.fontSize
+        self.style.heading1.leading = 2 * self.style.fontSize
         #heading1.leading = 10*mm
 
         self.style.heading2 = copy.deepcopy(self.style.normal)
-        self.style.heading2.fontName = 'Reporting-Bold'
-        self.style.heading2.fontSize = 1.25*base_size
-        self.style.heading2.leading = 1.75*base_size
+        self.style.heading2.fontName = '%s-Bold' % self.style.fontName
+        self.style.heading2.fontSize = 1.25 * self.style.fontSize
+        self.style.heading2.leading = 1.75 * self.style.fontSize
         #heading2.leading = 5*mm
 
         self.style.heading3 = copy.deepcopy(self.style.normal)
-        self.style.heading3.fontName = 'Reporting-Bold'
-        self.style.heading3.fontSize = 1.1*base_size
-        self.style.heading3.leading = 1.5*base_size
+        self.style.heading3.fontName = '%s-Bold' % self.style.fontName
+        self.style.heading3.fontSize = 1.1 *  self.style.fontSize
+        self.style.heading3.leading = 1.5 * self.style.fontSize
         self.style.heading3.textColor = '#666666'
         #heading3.leading = 5*mm
 
         self.style.small = copy.deepcopy(self.style.normal)
-        self.style.small.fontSize = base_size-0.9
+        self.style.small.fontSize =  self.style.fontSize - 0.9
 
         self.style.smaller = copy.deepcopy(self.style.normal)
-        self.style.smaller.fontSize = base_size*0.75
+        self.style.smaller.fontSize =  self.style.fontSize * 0.75
 
         self.style.bold = copy.deepcopy(self.style.normal)
-        self.style.bold.fontName = 'Reporting-Bold'
+        self.style.bold.fontName = '%s-Bold' % self.style.fontName
 
         self.style.boldr = copy.deepcopy(self.style.bold)
         self.style.boldr.alignment = TA_RIGHT
@@ -240,7 +244,7 @@ class PDFDocument(object):
         self.style.indented.leftIndent = 0.5*cm
 
         self.style.tablenotes = copy.deepcopy(self.style.indented)
-        self.style.tablenotes.fontName = 'Reporting-Italic'
+        self.style.tablenotes.fontName = '%s-Italic' % self.style.fontName
 
         # alignment = TA_RIGHT
         # leftIndent = 0.4*cm
@@ -248,7 +252,7 @@ class PDFDocument(object):
         # spaceAfter = 0
 
         self.style.tableBase = (
-            ('FONT', (0, 0), (-1, -1), 'Reporting-Regular', base_size),
+            ('FONT', (0, 0), (-1, -1), '%s-Regular' % self.style.fontName,  self.style.fontSize),
             ('TOPPADDING', (0, 0), (-1, -1), 0),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
             ('LEFTPADDING', (0, 0), (-1, -1), 0),
@@ -267,7 +271,7 @@ class PDFDocument(object):
             )
 
         self.style.tableHead = self.style.tableBase+(
-            ('FONT', (0, 0), (-1, 0), 'Reporting-Bold', base_size),
+            ('FONT', (0, 0), (-1, 0), '%s-Bold' % self.style.fontName,  self.style.fontSize),
             ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
             ('TOPPADDING', (0, 0), (-1, -1), 1),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
@@ -276,7 +280,7 @@ class PDFDocument(object):
             )
 
         self.style.tableOptional = self.style.tableBase+(
-                ('FONT', (0, 0), (-1, 0), 'Reporting-Italic', self.style.baseSize),
+                ('FONT', (0, 0), (-1, 0), '%s-Italic' % self.style.fontName, self.style.fontSize),
                 ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
                 ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
                 ('RIGHTPADDING', (1, 0), (-1, -1), 2*cm),
@@ -301,7 +305,7 @@ class PDFDocument(object):
             ])
         self.story.append(NextPageTemplate('Later'))
 
-        self.generate_style(8)
+        self.generate_style(font_size=8)
 
     def init_confidential_report(self, page_fn=reporting_pdf_draw_page_template, page_fn_later=None):
         if not page_fn_later:
@@ -328,7 +332,7 @@ class PDFDocument(object):
             ])
         self.story.append(NextPageTemplate('Later'))
 
-        self.generate_style(9)
+        self.generate_style(font_size=9)
 
     def watermark(self, watermark=None):
         self._watermark = watermark
@@ -412,22 +416,22 @@ class PDFDocument(object):
 
     def header(self, canvas, text):
         canvas.saveState()
-        canvas.setFont('Reporting-Bold', 10)
+        canvas.setFont('%s-Bold' % self.style.fontName, 10)
         canvas.drawString(26*mm, 284*mm, text[0])
-        canvas.setFont('Reporting-Regular', 10)
+        canvas.setFont('%s-Regular' % self.style.fontName, 10)
         canvas.drawString(26*mm+settings.REPORTING_PDF_LEFT_OFFSET, 284*mm, text[1])
 
         if self._watermark:
             canvas.rotate(60)
             canvas.setFillColorRGB(0.97, 0.97, 0.97)
-            canvas.setFont('Reporting-Regular', 120)
+            canvas.setFont('%s-Regular' % self.style.fontName, 120)
             canvas.drawCentredString(195*mm, -30*mm, self._watermark)
 
         canvas.restoreState()
 
     def footer(self, canvas, texts):
         canvas.saveState()
-        canvas.setFont('Reporting-Regular', 6)
+        canvas.setFont('%s-Regular' % self.style.fontName, 6)
         for i, text in enumerate(reversed(texts)):
             canvas.drawRightString(190*mm, (8+3*i)*mm, text)
 
