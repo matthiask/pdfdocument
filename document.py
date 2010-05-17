@@ -201,13 +201,13 @@ class PDFDocument(object):
         _styles = getSampleStyleSheet()
 
         self.style.normal = _styles['Normal']
-        self.style.normal.fontName = '%s-Regular' % self.style.fontName
+        self.style.normal.fontName = '%s' % self.style.fontName
         self.style.normal.fontSize = self.style.fontSize
         self.style.normal.firstLineIndent = 0
         #normal.textColor = '#0e2b58'
 
         self.style.heading1 = copy.deepcopy(self.style.normal)
-        self.style.heading1.fontName = '%s-Regular' % self.style.fontName
+        self.style.heading1.fontName = '%s' % self.style.fontName
         self.style.heading1.fontSize = 1.5 * self.style.fontSize
         self.style.heading1.leading = 2 * self.style.fontSize
         #heading1.leading = 10*mm
@@ -252,7 +252,7 @@ class PDFDocument(object):
         # spaceAfter = 0
 
         self.style.tableBase = (
-            ('FONT', (0, 0), (-1, -1), '%s-Regular' % self.style.fontName,  self.style.fontSize),
+            ('FONT', (0, 0), (-1, -1), '%s' % self.style.fontName,  self.style.fontSize),
             ('TOPPADDING', (0, 0), (-1, -1), 0),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
             ('LEFTPADDING', (0, 0), (-1, -1), 0),
@@ -424,14 +424,14 @@ class PDFDocument(object):
         if self._watermark:
             canvas.rotate(60)
             canvas.setFillColorRGB(0.97, 0.97, 0.97)
-            canvas.setFont('%s-Regular' % self.style.fontName, 120)
+            canvas.setFont('%s' % self.style.fontName, 120)
             canvas.drawCentredString(195*mm, -30*mm, self._watermark)
 
         canvas.restoreState()
 
     def footer(self, canvas, texts):
         canvas.saveState()
-        canvas.setFont('%s-Regular' % self.style.fontName, 6)
+        canvas.setFont('%s' % self.style.fontName, 6)
         for i, text in enumerate(reversed(texts)):
             canvas.drawRightString(190*mm, (8+3*i)*mm, text)
 
