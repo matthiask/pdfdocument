@@ -24,15 +24,15 @@ def register_fonts_from_paths(regular, italic=None, bold=None, bolditalic=None):
     Pass paths to TTF files which should be used for the PDFDocument
     """
 
-    pdfmetrics.registerFont(TTFont('Reporting-Regular', regular))
+    pdfmetrics.registerFont(TTFont('Reporting', regular))
     pdfmetrics.registerFont(TTFont('Reporting-Italic', italic or regular))
     pdfmetrics.registerFont(TTFont('Reporting-Bold', bold or regular))
     pdfmetrics.registerFont(TTFont('Reporting-BoldItalic', bolditalic or bold or regular))
 
-    addMapping('Reporting-Regular', 0, 0, 'Reporting-Regular') # regular
-    addMapping('Reporting-Regular', 0, 1, 'Reporting-Italic') # italic
-    addMapping('Reporting-Regular', 1, 0, 'Reporting-Bold') # bold
-    addMapping('Reporting-Regular', 1, 1, 'Reporting-BoldItalic') # bold & italic
+    addMapping('Reporting', 0, 0, 'Reporting') # regular
+    addMapping('Reporting', 0, 1, 'Reporting-Italic') # italic
+    addMapping('Reporting', 1, 0, 'Reporting-Bold') # bold
+    addMapping('Reporting', 1, 1, 'Reporting-BoldItalic') # bold & italic
 
 
 class Empty(object):
