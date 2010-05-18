@@ -19,20 +19,21 @@ import copy
 from datetime import date, datetime
 
 
-def register_fonts_from_paths(regular, italic=None, bold=None, bolditalic=None):
+def register_fonts_from_paths(regular, italic=None, bold=None, bolditalic=None,
+        font_name='Reporting'):
     """
     Pass paths to TTF files which should be used for the PDFDocument
     """
 
-    pdfmetrics.registerFont(TTFont('Reporting', regular))
-    pdfmetrics.registerFont(TTFont('Reporting-Italic', italic or regular))
-    pdfmetrics.registerFont(TTFont('Reporting-Bold', bold or regular))
-    pdfmetrics.registerFont(TTFont('Reporting-BoldItalic', bolditalic or bold or regular))
+    pdfmetrics.registerFont(TTFont('%s' % font_name, regular))
+    pdfmetrics.registerFont(TTFont('%s-Italic' % font_name, italic or regular))
+    pdfmetrics.registerFont(TTFont('%s-Bold' % font_name, bold or regular))
+    pdfmetrics.registerFont(TTFont('%s-BoldItalic' % font_name, bolditalic or bold or regular))
 
-    addMapping('Reporting', 0, 0, 'Reporting') # regular
-    addMapping('Reporting', 0, 1, 'Reporting-Italic') # italic
-    addMapping('Reporting', 1, 0, 'Reporting-Bold') # bold
-    addMapping('Reporting', 1, 1, 'Reporting-BoldItalic') # bold & italic
+    addMapping('%s' % font_name, 0, 0, '%s' % font_name) # regular
+    addMapping('%s' % font_name, 0, 1, '%s-Italic' % font_name) # italic
+    addMapping('%s' % font_name, 1, 0, '%s-Bold' % font_name) # bold
+    addMapping('%s' % font_name, 1, 1, '%s-BoldItalic' % font_name) # bold & italic
 
 
 class Empty(object):
