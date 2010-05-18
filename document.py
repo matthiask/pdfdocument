@@ -18,8 +18,6 @@ import os
 import copy
 from datetime import date, datetime
 
-from django.conf import settings
-
 
 def register_fonts_from_paths(regular, italic=None, bold=None, bolditalic=None):
     """
@@ -168,11 +166,8 @@ class ReportingDocTemplate(BaseDocTemplate):
         return self.PDFDocument.page_index_string(current_page, total_pages)
 
 
-def reporting_pdf_draw_page_template(c, doc):
-    doc.PDFDocument.header(c, settings.REPORTING_PDF_HEADER)
-    doc.PDFDocument.footer(c, (
-        doc.page_index_string(),
-        ))
+def dummy_stationery(c, doc):
+    pass
 
 
 class PDFDocument(object):
@@ -293,7 +288,7 @@ class PDFDocument(object):
             ])
         self.story.append(NextPageTemplate('Later'))
 
-    def init_report(self, page_fn=reporting_pdf_draw_page_template, page_fn_later=None):
+    def init_report(self, page_fn=dummy_stationery, page_fn_later=None):
         frame_kwargs = {'showBoundary': self.show_boundaries,
             'leftPadding': 0, 'rightPadding': 0, 'topPadding': 0, 'bottomPadding': 0}
 
@@ -307,7 +302,7 @@ class PDFDocument(object):
 
         self.generate_style(font_size=8)
 
-    def init_confidential_report(self, page_fn=reporting_pdf_draw_page_template, page_fn_later=None):
+    def init_confidential_report(self, page_fn=dummy_stationery, page_fn_later=None):
         if not page_fn_later:
             page_fn_later = page_fn
 
@@ -318,11 +313,12 @@ class PDFDocument(object):
 
         self.init_report(page_fn=_first_page_fn, page_fn_later=page_fn_later)
 
-    def init_letter(self, page_fn=reporting_pdf_draw_page_template, page_fn_later=None):
+    def init_letter(self, page_fn=dummy_stationery, page_fn_later=None,
+            address_y=20.2*cm):
         frame_kwargs = {'showBoundary': self.show_boundaries,
             'leftPadding': 0, 'rightPadding': 0, 'topPadding': 0, 'bottomPadding': 0}
 
-        address_frame = Frame(2.6*cm, settings.REPORTING_PDF_ADDRESSBLOCK_Y, 16.4*cm, 4*cm, **frame_kwargs)
+        address_frame = Frame(2.6*cm, address_y, 16.4*cm, 4*cm, **frame_kwargs)
         rest_frame = Frame(2.6*cm, 2*cm, 16.4*cm, 18.2*cm, **frame_kwargs)
         full_frame = Frame(2.6*cm, 2*cm, 16.4*cm, 25*cm, **frame_kwargs)
 
@@ -414,36 +410,14 @@ class PDFDocument(object):
 
         canvas.restoreState()
 
-    def header(self, canvas, text):
-        canvas.saveState()
-        canvas.setFont('%s-Bold' % self.style.fontName, 10)
-        canvas.drawString(26*mm, 284*mm, text[0])
-        canvas.setFont('%s-Regular' % self.style.fontName, 10)
-        canvas.drawString(26*mm+settings.REPORTING_PDF_LEFT_OFFSET, 284*mm, text[1])
-
+    def draw_watermark(self, canvas):
         if self._watermark:
+            canvas.saveState()
             canvas.rotate(60)
             canvas.setFillColorRGB(0.97, 0.97, 0.97)
             canvas.setFont('%s' % self.style.fontName, 120)
             canvas.drawCentredString(195*mm, -30*mm, self._watermark)
-
-        canvas.restoreState()
-
-    def footer(self, canvas, texts):
-        canvas.saveState()
-        canvas.setFont('%s' % self.style.fontName, 6)
-        for i, text in enumerate(reversed(texts)):
-            canvas.drawRightString(190*mm, (8+3*i)*mm, text)
-
-        for i, text in enumerate(reversed(settings.REPORTING_PDF_FOOTER)):
-            canvas.drawString(26*mm+settings.REPORTING_PDF_LEFT_OFFSET, (8+3*i)*mm, text)
-
-        logo = getattr(settings, 'PDF_LOGO_SETTINGS', None)
-        if logo:
-            canvas.drawImage(os.path.join(settings.APP_BASEDIR, 'metronom', 'reporting', 'images', logo[0]),
-                **logo[1])
-
-        canvas.restoreState()
+            canvas.restoreState()
 
     def next_frame(self):
         self.story.append(CondPageBreak(20*cm))
@@ -456,8 +430,8 @@ class PDFDocument(object):
         self.story = self.story[:self.keeptogether_index]
         self.story.append(keeptogether)
 
-    def address_head(self):
-        self.smaller(settings.REPORTING_PDF_ADDRESSLINE)
+    def address_head(self, text):
+        self.smaller(text)
         self.spacer(2*mm)
 
     def address(self, obj, prefix=''):
