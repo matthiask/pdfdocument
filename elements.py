@@ -12,7 +12,7 @@ def create_stationery_fn(*fns):
     return _fn
 
 
-class MetronomStationery(object):
+class ExampleStationery(object):
     def __call__(self, canvas, pdfdocument):
         left_offset = 28.6*mm
 
@@ -38,3 +38,15 @@ class MetronomStationery(object):
                 **logo[1])
 
         canvas.restoreState()
+
+
+class PageFnWrapper(object):
+    """
+    Wrap an old-style page setup function
+    """
+
+    def __init__(self, fn):
+        self.fn = fn
+
+    def __call__(self, canvas, pdfdocument):
+        self.fn(canvas, pdfdocument.doc)
