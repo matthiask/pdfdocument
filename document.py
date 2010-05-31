@@ -438,7 +438,7 @@ class PDFDocument(object):
     def address(self, obj, prefix=''):
         data = {}
         for field in ('company', 'manner_of_address', 'first_name', 'last_name', 'address', 'zip_code', 'city'):
-            data[field] = getattr(obj, '%s%s' % (prefix, field), None)
+            data[field] = getattr(obj, '%s%s' % (prefix, field), u'').strip()
 
         address = []
         if data['company']:
