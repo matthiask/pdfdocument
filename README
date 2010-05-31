@@ -4,5 +4,7 @@ PDFDocument
 
 Wrapper for ReportLab which allows easy creation of PDF documents.
 
-Not fully separated from the code base it came from yet.
+Usage:
 
+See the Plata project, specifically the order PDF generation:
+http://github.com/matthiask/plata/blob/master/plata/shop/views.py
