@@ -420,6 +420,20 @@ class PDFDocument(object):
             canvas.drawCentredString(195*mm, -30*mm, self._watermark)
             canvas.restoreState()
 
+    def draw_svg(self, canvas, path, xpos=0, ypos=0, xsize=None, ysize=None):
+        from reportlab.graphics import renderPDF
+        from svglib.svglib import svg2rlg
+
+        drawing = svg2rlg(path)
+        xL, yL, xH, yH = drawing.getBounds()
+
+        if xsize:
+            drawing.renderScale = xsize / (xH - xL)
+        if ysize:
+            drawing.renderScale = ysize / (yH - yL)
+
+        renderPDF.draw(drawing, canvas, xpos, ypos, showBoundary=self.show_boundaries)
+
     def next_frame(self):
         self.story.append(CondPageBreak(20*cm))
 
