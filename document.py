@@ -450,21 +450,25 @@ class PDFDocument(object):
         self.spacer(2*mm)
 
     def address(self, obj, prefix=''):
-        data = {}
-        for field in ('company', 'manner_of_address', 'first_name', 'last_name', 'address', 'zip_code', 'city'):
-            data[field] = getattr(obj, '%s%s' % (prefix, field), u'').strip()
+        if type(obj) == dict:
+            data = obj
+        else:
+            data = {}
+            for field in ('company', 'manner_of_address', 'first_name', 'last_name', 'address', 'zip_code', 'city'):
+                data[field] = getattr(obj, '%s%s' % (prefix, field), u'').strip()
 
         address = []
-        if data['company']:
+        if data.get('company', False):
             address.append(data['company'])
 
-        title = data['manner_of_address'] and '%s ' % data['manner_of_address'] or ''
-        if data['first_name']:
-            address.append(u'%s%s %s' % (title, data['first_name'], data['last_name']))
+        title = data.get('manner_of_address', '')
+        if data.get('first_name', False):
+            address.append(u'%s%s %s' % (title, data.get('first_name', ''), 
+                                         data.get('last_name','')))
         else:
-            address.append(u'%s%s' % (title, data['last_name']))
+            address.append(u'%s%s' % (title, data.get('last_name', '')))
 
-        address.append(data['address'])
-        address.append(u'%s %s' % (data['zip_code'], data['city']))
+        address.append(data.get('address'))
+        address.append(u'%s %s' % (data.get('zip_code', ''), data.get('city', '')))
 
         self.p('\n'.join(address))
