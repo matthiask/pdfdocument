@@ -462,8 +462,11 @@ class PDFDocument(object):
             address.append(data['company'])
 
         title = data.get('manner_of_address', '')
+        if title:
+            title += u' '
+
         if data.get('first_name', False):
-            address.append(u'%s%s %s' % (title, data.get('first_name', ''), 
+            address.append(u'%s%s %s' % (title, data.get('first_name', ''),
                                          data.get('last_name','')))
         else:
             address.append(u'%s%s' % (title, data.get('last_name', '')))
