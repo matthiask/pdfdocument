@@ -454,7 +454,7 @@ class PDFDocument(object):
             data = obj
         else:
             data = {}
-            for field in ('company', 'manner_of_address', 'first_name', 'last_name', 'address', 'zip_code', 'city'):
+            for field in ('company', 'manner_of_address', 'first_name', 'last_name', 'address', 'zip_code', 'city', 'full_override'):
                 data[field] = getattr(obj, '%s%s' % (prefix, field), u'').strip()
 
         address = []
@@ -473,5 +473,8 @@ class PDFDocument(object):
 
         address.append(data.get('address'))
         address.append(u'%s %s' % (data.get('zip_code', ''), data.get('city', '')))
+
+        if data.get('full_override'):
+            address = [l.strip() for l in data.get('full_override').replace('\r', '').splitlines()]
 
         self.p('\n'.join(address))
