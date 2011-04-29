@@ -415,7 +415,7 @@ class PDFDocument(object):
         if self._watermark:
             canvas.saveState()
             canvas.rotate(60)
-            canvas.setFillColorRGB(0.97, 0.97, 0.97)
+            canvas.setFillColorRGB(0.9, 0.9, 0.9)
             canvas.setFont('%s' % self.style.fontName, 120)
             canvas.drawCentredString(195*mm, -30*mm, self._watermark)
             canvas.restoreState()
