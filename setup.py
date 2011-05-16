@@ -8,5 +8,5 @@ setup(name='pdfdocument',
       author='Matthias Kestenholz',
       author_email='mk@feinheit.ch',
       url='https://github.com/matthiask/pdfdocument/',
-      packages=['.'],
+      packages=['pdfdocument'],
       )
