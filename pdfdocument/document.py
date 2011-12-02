@@ -411,7 +411,7 @@ class PDFDocument(object):
             elif item.tag == 'li':
                 ul.append(lxml.html.tostring(item, method='xml'))
             elif item.tag == 'ul':
-                self.ul(reversed(ul))
+                self.ul(ul)
                 ul = []
             else:
                 item.drop_tag()
