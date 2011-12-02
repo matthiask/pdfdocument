@@ -403,6 +403,9 @@ class PDFDocument(object):
 
         ul = []
         for item in reversed(list(soup.iterdescendants())):
+            for key in item.attrib:
+                del item.attrib[key]
+
             if item.tag in TAG_MAP:
                 item.tag = TAG_MAP[item.tag]
             elif item.tag == 'p':
