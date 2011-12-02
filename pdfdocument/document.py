@@ -248,9 +248,9 @@ class PDFDocument(object):
         self.style.bullet = copy.deepcopy(self.style.normal)
         self.style.bullet.bulletFontName = 'Symbol'
         self.style.bullet.bulletFontSize = 7
-        self.style.bullet.bulletIndent = 0
+        self.style.bullet.bulletIndent = 6
         self.style.bullet.firstLineIndent = 0
-        self.style.bullet.leftIndent = 10
+        self.style.bullet.leftIndent = 15
 
         # alignment = TA_RIGHT
         # leftIndent = 0.4*cm
