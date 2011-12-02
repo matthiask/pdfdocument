@@ -9,9 +9,10 @@ from reportlab.lib.units import cm, mm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
-from reportlab.platypus import BaseDocTemplate, Paragraph, Spacer, Frame,\
-    PageTemplate, NextPageTemplate, PageBreak, Table, TableStyle, Image,\
-    Preformatted, Flowable, XPreformatted, KeepTogether, CondPageBreak
+from reportlab.platypus import (BaseDocTemplate, Spacer, Frame,
+    PageTemplate, NextPageTemplate, PageBreak, Table, TableStyle, Image,
+    Preformatted, Flowable, XPreformatted, KeepTogether, CondPageBreak,
+    Paragraph as _Paragraph)
 from reportlab.platypus.flowables import HRFlowable
 
 import os
@@ -53,8 +54,6 @@ def sanitize(text):
         text = text.replace(p, q)
     return text
 
-
-_Paragraph = Paragraph
 
 def MarkupParagraph(txt, *args, **kwargs):
     if not txt: return _Paragraph(u'', *args, **kwargs)
