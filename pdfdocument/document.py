@@ -402,6 +402,7 @@ class PDFDocument(object):
             }
 
         ul = []
+
         for item in reversed(list(soup.iterdescendants())):
             for key in item.attrib:
                 del item.attrib[key]
@@ -409,15 +410,26 @@ class PDFDocument(object):
             if item.tag in TAG_MAP:
                 item.tag = TAG_MAP[item.tag]
             elif item.tag == 'p':
+                if item.tail:
+                    self.p_markup(item.tail, style=self.style.paragraph)
+                    item.tail = ''
+
                 item.tag = 'para'
                 self.p_markup(lxml.html.tostring(item, method='xml'), style=self.style.paragraph)
             elif item.tag == 'li':
                 ul.append(lxml.html.tostring(item, method='xml'))
             elif item.tag == 'ul':
+                if item.tail:
+                    self.p_markup(item.tail, style=self.style.paragraph)
+                    item.tail = ''
+
                 self.ul(ul)
                 ul = []
             else:
                 item.drop_tag()
+
+        if soup.text:
+            self.p_markup(soup.text, style=self.style.paragraph)
 
         end = len(self.story)
 
