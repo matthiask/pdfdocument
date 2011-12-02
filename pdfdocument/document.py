@@ -398,6 +398,7 @@ class PDFDocument(object):
         TAG_MAP = {
             'strong': 'b',
             'em': 'i',
+            'br': 'br', # Leave br tags alone
             }
 
         ul = []
@@ -406,9 +407,9 @@ class PDFDocument(object):
                 item.tag = TAG_MAP[item.tag]
             elif item.tag == 'p':
                 item.tag = 'para'
-                self.p_markup(lxml.html.tostring(item), style=self.style.paragraph)
+                self.p_markup(lxml.html.tostring(item, method='xml'), style=self.style.paragraph)
             elif item.tag == 'li':
-                ul.append(lxml.html.tostring(item))
+                ul.append(lxml.html.tostring(item, method='xml'))
             elif item.tag == 'ul':
                 self.ul(reversed(ul))
                 ul = []
