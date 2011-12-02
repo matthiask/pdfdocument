@@ -385,6 +385,42 @@ class PDFDocument(object):
     def hr_mini(self):
         self.story.append(HRFlowable(width='100%', thickness=0.2, color=colors.grey))
 
+    def mini_html(self, html):
+        """Convert a small subset of HTML into ReportLab paragraphs
+
+        Requires lxml and BeautifulSoup."""
+        import lxml.html
+        import lxml.html.soupparser
+
+        start = len(self.story)
+
+        soup = lxml.html.soupparser.fromstring(html)
+        TAG_MAP = {
+            'strong': 'b',
+            'em': 'i',
+            }
+
+        ul = []
+        for item in reversed(list(soup.iterdescendants())):
+            if item.tag in TAG_MAP:
+                item.tag = TAG_MAP[item.tag]
+            elif item.tag == 'p':
+                item.tag = 'para'
+                self.p_markup(lxml.html.tostring(item), style=self.style.paragraph)
+            elif item.tag == 'li':
+                ul.append(lxml.html.tostring(item))
+            elif item.tag == 'ul':
+                self.ul(reversed(ul))
+                ul = []
+            else:
+                item.drop_tag()
+
+        end = len(self.story)
+
+        # Reverse story elements added in this method, since they have been
+        # added in reverse order too
+        self.story[start:end] = reversed(self.story[start:end])
+
     def pagebreak(self):
         self.story.append(PageBreak())
 
