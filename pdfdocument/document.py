@@ -241,6 +241,17 @@ class PDFDocument(object):
         self.style.tablenotes = copy.deepcopy(self.style.indented)
         self.style.tablenotes.fontName = '%s-Italic' % self.style.fontName
 
+        self.style.paragraph = copy.deepcopy(self.style.normal)
+        self.style.paragraph.spaceBefore = 1
+        self.style.paragraph.spaceAfter = 1
+
+        self.style.bullet = copy.deepcopy(self.style.normal)
+        self.style.bullet.bulletFontName = 'Symbol'
+        self.style.bullet.bulletFontSize = 7
+        self.style.bullet.bulletIndent = 0
+        self.style.bullet.firstLineIndent = 0
+        self.style.bullet.leftIndent = 10
+
         # alignment = TA_RIGHT
         # leftIndent = 0.4*cm
         # spaceBefore = 0
@@ -357,6 +368,10 @@ class PDFDocument(object):
 
     def p_markup(self, text, style=None):
         self.story.append(MarkupParagraph(text, style or self.style.normal))
+
+    def ul(self, items):
+        for item in items:
+            self.story.append(MarkupParagraph(item, self.style.bullet, bulletText=u'•'))
 
     def spacer(self, height=0.6*cm):
         self.story.append(Spacer(1, height))
