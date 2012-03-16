@@ -31,9 +31,9 @@ def worklog_period_string(obj):
 
 FILENAME_RE = re.compile(r'[^A-Za-z0-9\-\.]+')
 
-def pdf_response(filename):
+def pdf_response(filename, **kwargs):
     response = HttpResponse(mimetype='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=%s.pdf' %\
         FILENAME_RE.sub('-', filename)
 
-    return PDFDocument(response), response
+    return PDFDocument(response, **kwargs), response
