@@ -447,6 +447,9 @@ class PDFDocument(object):
 
         self.story.append(BottomTable(data, columns, style=style or self.style.table))
 
+    def append(self, data):
+        self.story.append(data)
+
     def generate(self):
         self.doc.multiBuild(self.story)
 
