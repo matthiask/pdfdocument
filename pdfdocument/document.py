@@ -164,7 +164,7 @@ class ReportingDocTemplate(BaseDocTemplate):
                 total_pages = max(1, total_pages-1)
 
         # Ensure total pages is always at least 1
-        total_pages = min(1, total_pages)
+        total_pages = max(1, total_pages)
 
         return self.PDFDocument.page_index_string(current_page, total_pages)
 
