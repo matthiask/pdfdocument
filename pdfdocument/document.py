@@ -395,50 +395,46 @@ class PDFDocument(object):
         import lxml.html
         import lxml.html.soupparser
 
-        start = len(self.story)
-
-        soup = lxml.html.soupparser.fromstring(html)
         TAG_MAP = {
             'strong': 'b',
             'em': 'i',
             'br': 'br', # Leave br tags alone
+            'p': 'para',
             }
 
-        ul = []
-
-        for item in reversed(list(soup.iterdescendants())):
-            for key in item.attrib:
-                del item.attrib[key]
-
-            if item.tag in TAG_MAP:
-                item.tag = TAG_MAP[item.tag]
-            elif item.tag == 'p':
-                if item.tail:
-                    self.p_markup(item.tail, style=self.style.paragraph)
-                    item.tail = ''
-
-                item.tag = 'para'
-                self.p_markup(lxml.html.tostring(item, method='xml'), style=self.style.paragraph)
-            elif item.tag == 'li':
-                ul.append(lxml.html.tostring(item, method='xml'))
-            elif item.tag == 'ul':
-                if item.tail:
-                    self.p_markup(item.tail, style=self.style.paragraph)
-                    item.tail = ''
-
-                self.ul(ul)
-                ul = []
+        def _p(text, in_list):
+            if in_list:
+                self.story.append(MarkupParagraph(text,
+                    self.style.bullet, bulletText=u'•'))
             else:
-                item.drop_tag()
+                self.story.append(MarkupParagraph(text,
+                    self.style.paragraph))
 
-        if soup.text:
-            self.p_markup(soup.text, style=self.style.paragraph)
+        def _handle_element(element, in_list=False):
+            if element.tag in TAG_MAP:
+                element.tag = TAG_MAP[element.tag]
 
-        end = len(self.story)
+            if element.text:
+                _p(element.text, in_list)
 
-        # Reverse story elements added in this method, since they have been
-        # added in reverse order too
-        self.story[start:end] = reversed(self.story[start:end])
+            if element.tag in ('ul',):
+                for item in element:
+                    _handle_element(item, in_list=True)
+                in_list = False
+            elif element.tag in ('para', 'li'):
+                for tag in reversed(list(element.iterdescendants())):
+                    if tag.tag in TAG_MAP:
+                        tag.tag = TAG_MAP[tag.tag]
+                    else:
+                        tag.drop_tag()
+                _p(lxml.html.tostring(element, method='xml'), in_list)
+
+            if element.tail:
+                _p(element.tail, in_list)
+
+        soup = lxml.html.soupparser.fromstring(html)
+        for element in soup:
+            _handle_element(element)
 
     def pagebreak(self):
         self.story.append(PageBreak())
