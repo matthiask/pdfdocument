@@ -399,7 +399,6 @@ class PDFDocument(object):
             'strong': 'b',
             'em': 'i',
             'br': 'br', # Leave br tags alone
-            'p': 'para',
             }
 
         def _p(text, in_list):
@@ -424,7 +423,7 @@ class PDFDocument(object):
                 for item in element:
                     _handle_element(item, in_list=True)
                 in_list = False
-            elif element.tag in ('para', 'li'):
+            elif element.tag in ('p', 'li'):
                 for tag in reversed(list(element.iterdescendants())):
                     _remove_attributes(tag)
                     if tag.tag in TAG_MAP:
