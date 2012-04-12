@@ -428,6 +428,9 @@ class PDFDocument(object):
                     else:
                         tag.drop_tag()
                 _p(lxml.html.tostring(element, method='xml'), in_list)
+            else:
+                for item in element:
+                    _handle_element(item, in_list)
 
             if element.tail:
                 _p(element.tail, in_list)
