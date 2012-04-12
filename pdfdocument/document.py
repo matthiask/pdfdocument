@@ -410,12 +410,15 @@ class PDFDocument(object):
                 self.story.append(MarkupParagraph(text,
                     self.style.paragraph))
 
+        def _remove_attributes(element):
+            for key in element.attrib:
+                del element.attrib[key]
+
         def _handle_element(element, in_list=False):
+            _remove_attributes(element)
+
             if element.tag in TAG_MAP:
                 element.tag = TAG_MAP[element.tag]
-
-            if element.text:
-                _p(element.text, in_list)
 
             if element.tag in ('ul',):
                 for item in element:
@@ -423,12 +426,17 @@ class PDFDocument(object):
                 in_list = False
             elif element.tag in ('para', 'li'):
                 for tag in reversed(list(element.iterdescendants())):
+                    _remove_attributes(tag)
                     if tag.tag in TAG_MAP:
                         tag.tag = TAG_MAP[tag.tag]
                     else:
                         tag.drop_tag()
+
                 _p(lxml.html.tostring(element, method='xml'), in_list)
             else:
+                if element.text:
+                    _p(element.text, in_list)
+
                 for item in element:
                     _handle_element(item, in_list)
 
