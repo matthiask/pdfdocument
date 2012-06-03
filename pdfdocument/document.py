@@ -18,6 +18,7 @@ from reportlab.platypus.flowables import HRFlowable
 import os
 import copy
 from datetime import date, datetime
+import unicodedata
 
 
 def register_fonts_from_paths(regular, italic=None, bold=None, bolditalic=None,
@@ -55,14 +56,23 @@ def sanitize(text):
     return text
 
 
+def normalize(text):
+    """
+    Some layers of reportlab, PDF or font handling or whatever cannot handle
+    german umlauts in decomposed form correctly. Normalize everything to
+    NFKC.
+    """
+    return unicodedata.normalize('NFKC', text)
+
+
 def MarkupParagraph(txt, *args, **kwargs):
     if not txt: return _Paragraph(u'', *args, **kwargs)
-    return _Paragraph(txt, *args, **kwargs)
+    return _Paragraph(normalize(txt), *args, **kwargs)
 
 
 def Paragraph(txt, *args, **kwargs):
     if not txt: return _Paragraph(u'', *args, **kwargs)
-    return _Paragraph(sanitize(txt), *args, **kwargs)
+    return _Paragraph(sanitize(normalize(txt)), *args, **kwargs)
 
 
 class BottomTable(Table):
@@ -431,7 +441,7 @@ class PDFDocument(object):
                     else:
                         tag.drop_tag()
 
-                _p(lxml.html.tostring(element, method='xml'), in_list)
+                _p(lxml.html.tostring(element, method='xml', encoding=unicode), in_list)
             else:
                 if element.text:
                     _p(element.text, in_list)
