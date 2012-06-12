@@ -62,6 +62,8 @@ def normalize(text):
     german umlauts in decomposed form correctly. Normalize everything to
     NFKC.
     """
+    if not isinstance(text, unicode):
+        text = unicode(text)
     return unicodedata.normalize('NFKC', text)
 
 
