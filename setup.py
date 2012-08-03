@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='pdfdocument',
-      version='1.2',
+      version='1.3',
       description='Wrapper for ReportLab which allows easy creation of PDF documents.',
       author='Matthias Kestenholz',
       author_email='mk@feinheit.ch',
