@@ -146,9 +146,9 @@ class ReportingDocTemplate(BaseDocTemplate):
             self.restartDocIndex = 0
             #self.restartDocPageNumbers = []
 
-    def page_index_string(self):
+    def page_index(self):
         """
-        Return page index string for the footer.
+        Return the current page index as a tuple (current_page, total_pages)
 
         This is the ugliest thing I've done in the last two years.
         For this I'll burn in programmer hell.
@@ -177,6 +177,14 @@ class ReportingDocTemplate(BaseDocTemplate):
 
         # Ensure total pages is always at least 1
         total_pages = max(1, total_pages)
+
+        return (current_page, total_pages)
+
+    def page_index_string(self):
+        """
+        Return page index string for the footer.
+        """
+        current_page, total_pages = self.page_index()
 
         return self.PDFDocument.page_index_string(current_page, total_pages)
 
