@@ -173,7 +173,7 @@ class ReportingDocTemplate(BaseDocTemplate):
             total_pages -= 1
 
             if self.bottomTableIsLast and current_page==1:
-                total_pages = max(1, total_pages-1)
+                total_pages = max(1, total_pages)
 
         # Ensure total pages is always at least 1
         total_pages = max(1, total_pages)
