@@ -136,13 +136,13 @@ class ReportingDocTemplate(BaseDocTemplate):
     # here the real hackery starts ... thanks Ralph
     def _allSatisfied(self):
         """ Called by multi-build - are all cross-references resolved? """
-        if self._lastnumPages < self.numPages:
+        if self._lastNumPages < self.numPages:
             return 0
         return BaseDocTemplate._allSatisfied(self)
 
     def _onProgress_cb(self, what, arg):
         if what=='STARTED':
-            self._lastnumPages = self.numPages
+            self._lastNumPages = self.numPages
             self.restartDocIndex = 0
             #self.restartDocPageNumbers = []
 
@@ -173,7 +173,7 @@ class ReportingDocTemplate(BaseDocTemplate):
             total_pages -= 1
 
             if self.bottomTableIsLast and current_page==1:
-                total_pages = max(1, total_pages-1)
+                total_pages = max(1, total_pages)
 
         # Ensure total pages is always at least 1
         total_pages = max(1, total_pages)
