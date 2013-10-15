@@ -275,6 +275,13 @@ class PDFDocument(object):
         self.style.bullet.firstLineIndent = 0
         self.style.bullet.leftIndent = 15
 
+        self.style.numberbullet = copy.deepcopy(self.style.normal)
+        self.style.numberbullet.bulletFontName = self.style.paragraph.fontName
+        self.style.numberbullet.bulletFontSize = self.style.paragraph.fontSize
+        self.style.numberbullet.bulletIndent = 0
+        self.style.numberbullet.firstLineIndent = 0
+        self.style.numberbullet.leftIndent = 15
+
         # alignment = TA_RIGHT
         # leftIndent = 0.4*cm
         # spaceBefore = 0
@@ -419,21 +426,30 @@ class PDFDocument(object):
             'strong': 'b',
             'em': 'i',
             'br': 'br', # Leave br tags alone
-            }
+        }
 
-        def _p(text, in_list):
-            if in_list:
-                self.story.append(MarkupParagraph(text,
-                    self.style.bullet, bulletText=u'•'))
+        BULLETPOINT = u'•'
+
+        def _p(text, list_bullet_point, style=None):
+            if list_bullet_point:
+                self.story.append(
+                    MarkupParagraph(
+                        text,
+                        style or self.style.paragraph,
+                        bulletText=list_bullet_point)
+                )
             else:
-                self.story.append(MarkupParagraph(text,
-                    self.style.paragraph))
+                self.story.append(
+                    MarkupParagraph(
+                        text,
+                        style or self.style.paragraph)
+                )
 
         def _remove_attributes(element):
             for key in element.attrib:
                 del element.attrib[key]
 
-        def _handle_element(element, in_list=False):
+        def _handle_element(element, list_bullet_point=False, style=None):
             _remove_attributes(element)
 
             if element.tag in TAG_MAP:
@@ -441,8 +457,19 @@ class PDFDocument(object):
 
             if element.tag in ('ul',):
                 for item in element:
-                    _handle_element(item, in_list=True)
-                in_list = False
+                    _handle_element(
+                        item,
+                        list_bullet_point=BULLETPOINT,
+                        style=self.style.bullet)
+                list_bullet_point = False
+            elif element.tag in ('ol',):
+                for counter, item in enumerate(element):
+                    _handle_element(
+                        item,
+                        list_bullet_point=u'{}.'.format(counter + 1),
+                        style=self.style.numberbullet,
+                    )
+                list_bullet_point = False
             elif element.tag in ('p', 'li'):
                 for tag in reversed(list(element.iterdescendants())):
                     _remove_attributes(tag)
@@ -451,16 +478,19 @@ class PDFDocument(object):
                     else:
                         tag.drop_tag()
 
-                _p(lxml.html.tostring(element, method='xml', encoding=unicode), in_list)
+                _p(
+                    lxml.html.tostring(element, method='xml', encoding=unicode),
+                    list_bullet_point,
+                    style)
             else:
                 if element.text:
-                    _p(element.text, in_list)
+                    _p(element.text, list_bullet_point, style)
 
                 for item in element:
-                    _handle_element(item, in_list)
+                    _handle_element(item, list_bullet_point, style)
 
             if element.tail:
-                _p(element.tail, in_list)
+                _p(element.tail, list_bullet_point, style)
 
         soup = lxml.html.soupparser.fromstring(html)
         for element in soup:
