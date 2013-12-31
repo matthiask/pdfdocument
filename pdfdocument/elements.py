@@ -2,7 +2,7 @@ import os
 
 from django.conf import settings
 
-from pdfdocument.document import cm, mm
+from pdfdocument.document import mm
 
 
 def create_stationery_fn(*fns):
@@ -26,7 +26,8 @@ class ExampleStationery(object):
 
         canvas.saveState()
         canvas.setFont('%s' % pdfdocument.style.fontName, 6)
-        for i, text in enumerate(reversed([pdfdocument.doc.page_index_string()])):
+        for i, text in enumerate(reversed([
+                pdfdocument.doc.page_index_string()])):
             canvas.drawRightString(190*mm, (8+3*i)*mm, text)
 
         for i, text in enumerate(reversed(['PLATA', 'Something'])):
@@ -34,7 +35,13 @@ class ExampleStationery(object):
 
         logo = getattr(settings, 'PDF_LOGO_SETTINGS', None)
         if logo:
-            canvas.drawImage(os.path.join(settings.APP_BASEDIR, 'metronom', 'reporting', 'images', logo[0]),
+            canvas.drawImage(
+                os.path.join(
+                    settings.APP_BASEDIR,
+                    'metronom',
+                    'reporting',
+                    'images',
+                    logo[0]),
                 **logo[1])
 
         canvas.restoreState()

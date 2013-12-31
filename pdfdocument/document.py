@@ -1,28 +1,23 @@
 # coding=utf-8
 
 from reportlab.lib import colors
-from reportlab.lib.enums import TA_LEFT, TA_RIGHT
+from reportlab.lib.enums import TA_RIGHT
 from reportlab.lib.fonts import addMapping
-from reportlab.lib.pagesizes import A4, landscape, portrait
-from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import cm, mm
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfgen import canvas
-from reportlab.platypus import (BaseDocTemplate, Spacer, Frame,
-    PageTemplate, NextPageTemplate, PageBreak, Table, TableStyle, Image,
-    Preformatted, Flowable, XPreformatted, KeepTogether, CondPageBreak,
-    Paragraph as _Paragraph)
+from reportlab.platypus import (
+    BaseDocTemplate, Spacer, Frame, PageTemplate, NextPageTemplate, PageBreak,
+    Table, KeepTogether, CondPageBreak, Paragraph as _Paragraph)
 from reportlab.platypus.flowables import HRFlowable
 
-import os
 import copy
-from datetime import date, datetime
 import unicodedata
 
 
 def register_fonts_from_paths(regular, italic=None, bold=None, bolditalic=None,
-        font_name='Reporting'):
+                              font_name='Reporting'):
     """
     Pass paths to TTF files which should be used for the PDFDocument
     """
@@ -30,12 +25,13 @@ def register_fonts_from_paths(regular, italic=None, bold=None, bolditalic=None,
     pdfmetrics.registerFont(TTFont('%s' % font_name, regular))
     pdfmetrics.registerFont(TTFont('%s-Italic' % font_name, italic or regular))
     pdfmetrics.registerFont(TTFont('%s-Bold' % font_name, bold or regular))
-    pdfmetrics.registerFont(TTFont('%s-BoldItalic' % font_name, bolditalic or bold or regular))
+    pdfmetrics.registerFont(
+        TTFont('%s-BoldItalic' % font_name, bolditalic or bold or regular))
 
-    addMapping('%s' % font_name, 0, 0, '%s' % font_name) # regular
-    addMapping('%s' % font_name, 0, 1, '%s-Italic' % font_name) # italic
-    addMapping('%s' % font_name, 1, 0, '%s-Bold' % font_name) # bold
-    addMapping('%s' % font_name, 1, 1, '%s-BoldItalic' % font_name) # bold & italic
+    addMapping('%s' % font_name, 0, 0, '%s' % font_name)
+    addMapping('%s' % font_name, 0, 1, '%s-Italic' % font_name)
+    addMapping('%s' % font_name, 1, 0, '%s-Bold' % font_name)
+    addMapping('%s' % font_name, 1, 1, '%s-BoldItalic' % font_name)
 
 
 class Empty(object):
@@ -43,13 +39,15 @@ class Empty(object):
 
 
 def sanitize(text):
-    REPLACE_MAP = [ (u'&', '&#38;'),
-                    (u'<', '&#60;'),
-                    (u'>', '&#62;'),
-                    (u'ç', '&#231;'),
-                    (u'Ç', '&#199;'),
-                    (u'\n', '<br />'),
-                    (u'\r', ''), ]
+    REPLACE_MAP = [
+        (u'&', '&#38;'),
+        (u'<', '&#60;'),
+        (u'>', '&#62;'),
+        (u'ç', '&#231;'),
+        (u'Ç', '&#199;'),
+        (u'\n', '<br />'),
+        (u'\r', ''),
+    ]
 
     for p, q in REPLACE_MAP:
         text = text.replace(p, q)
@@ -68,12 +66,14 @@ def normalize(text):
 
 
 def MarkupParagraph(txt, *args, **kwargs):
-    if not txt: return _Paragraph(u'', *args, **kwargs)
+    if not txt:
+        return _Paragraph(u'', *args, **kwargs)
     return _Paragraph(normalize(txt), *args, **kwargs)
 
 
 def Paragraph(txt, *args, **kwargs):
-    if not txt: return _Paragraph(u'', *args, **kwargs)
+    if not txt:
+        return _Paragraph(u'', *args, **kwargs)
     return _Paragraph(sanitize(normalize(txt)), *args, **kwargs)
 
 
@@ -87,9 +87,9 @@ class BottomTable(Table):
 
 class BottomSpacer(Spacer):
     def wrap(self, availWidth, availHeight):
-        my_height = availHeight-self._doc.bottomTableHeight
+        my_height = availHeight - self._doc.bottomTableHeight
 
-        if my_height<=0:
+        if my_height <= 0:
             return (self.width, availHeight)
         else:
             return (self.width, my_height)
@@ -141,7 +141,7 @@ class ReportingDocTemplate(BaseDocTemplate):
         return BaseDocTemplate._allSatisfied(self)
 
     def _onProgress_cb(self, what, arg):
-        if what=='STARTED':
+        if what == 'STARTED':
             self._lastNumPages = self.numPages
             self.restartDocIndex = 0
             #self.restartDocPageNumbers = []
@@ -155,7 +155,8 @@ class ReportingDocTemplate(BaseDocTemplate):
 
         At least it is contained here.
 
-        (Determining the total number of pages in reportlab is a mess anyway...)
+        (Determining the total number of pages in reportlab is a mess
+        anyway...)
         """
 
         current_page = self.page
@@ -163,16 +164,22 @@ class ReportingDocTemplate(BaseDocTemplate):
 
         if self.restartDoc:
             if self.restartDocIndex:
-                current_page = current_page - self.restartDocPageNumbers[self.restartDocIndex-1] + 1
+                current_page = (
+                    current_page
+                    - self.restartDocPageNumbers[self.restartDocIndex - 1]
+                    + 1)
                 if len(self.restartDocPageNumbers) > self.restartDocIndex:
-                    total_pages = self.restartDocPageNumbers[self.restartDocIndex] - self.restartDocPageNumbers[self.restartDocIndex-1] + 1
+                    total_pages = (
+                        self.restartDocPageNumbers[self.restartDocIndex]
+                        - self.restartDocPageNumbers[self.restartDocIndex - 1]
+                        + 1)
             else:
                 total_pages = self.restartDocPageNumbers[0]
 
         if self.bottomTableHeight:
             total_pages -= 1
 
-            if self.bottomTableIsLast and current_page==1:
+            if self.bottomTableIsLast and current_page == 1:
                 total_pages = max(1, total_pages)
 
         # Ensure total pages is always at least 1
@@ -209,7 +216,7 @@ class PDFDocument(object):
         return 'Page %(current_page)d of %(total_pages)d' % {
             'current_page': current_page,
             'total_pages': total_pages,
-            }
+        }
 
     def generate_style(self, font_name=None, font_size=None):
         self.style = Empty()
@@ -238,16 +245,16 @@ class PDFDocument(object):
 
         self.style.heading3 = copy.deepcopy(self.style.normal)
         self.style.heading3.fontName = '%s-Bold' % self.style.fontName
-        self.style.heading3.fontSize = 1.1 *  self.style.fontSize
+        self.style.heading3.fontSize = 1.1 * self.style.fontSize
         self.style.heading3.leading = 1.5 * self.style.fontSize
         self.style.heading3.textColor = '#666666'
         #heading3.leading = 5*mm
 
         self.style.small = copy.deepcopy(self.style.normal)
-        self.style.small.fontSize =  self.style.fontSize - 0.9
+        self.style.small.fontSize = self.style.fontSize - 0.9
 
         self.style.smaller = copy.deepcopy(self.style.normal)
-        self.style.smaller.fontSize =  self.style.fontSize * 0.75
+        self.style.smaller.fontSize = self.style.fontSize * 0.75
 
         self.style.bold = copy.deepcopy(self.style.normal)
         self.style.bold.fontName = '%s-Bold' % self.style.fontName
@@ -288,62 +295,86 @@ class PDFDocument(object):
         # spaceAfter = 0
 
         self.style.tableBase = (
-            ('FONT', (0, 0), (-1, -1), '%s' % self.style.fontName,  self.style.fontSize),
+            (
+                'FONT', (0, 0), (-1, -1),
+                '%s' % self.style.fontName,  self.style.fontSize),
             ('TOPPADDING', (0, 0), (-1, -1), 0),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
             ('LEFTPADDING', (0, 0), (-1, -1), 0),
             ('RIGHTPADDING', (0, 0), (-1, -1), 0),
             ('FIRSTLINEINDENT', (0, 0), (-1, -1), 0),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            )
+        )
 
         self.style.table = self.style.tableBase+(
             ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
-            )
+        )
 
         self.style.tableLLR = self.style.tableBase+(
             ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),
             ('VALIGN', (0, 0), (-1, 0), 'BOTTOM'),
-            )
+        )
 
         self.style.tableHead = self.style.tableBase+(
-            ('FONT', (0, 0), (-1, 0), '%s-Bold' % self.style.fontName,  self.style.fontSize),
+            (
+                'FONT', (0, 0), (-1, 0),
+                '%s-Bold' % self.style.fontName,  self.style.fontSize),
             ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
             ('TOPPADDING', (0, 0), (-1, -1), 1),
             ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
             ('LINEABOVE', (0, 0), (-1, 0), 0.2, colors.black),
             ('LINEBELOW', (0, 0), (-1, 0), 0.2, colors.black),
-            )
+        )
 
         self.style.tableOptional = self.style.tableBase+(
-                ('FONT', (0, 0), (-1, 0), '%s-Italic' % self.style.fontName, self.style.fontSize),
-                ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
-                ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
-                ('RIGHTPADDING', (1, 0), (-1, -1), 2*cm),
-                )
+            (
+                'FONT', (0, 0), (-1, 0),
+                '%s-Italic' % self.style.fontName, self.style.fontSize),
+            ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
+            ('RIGHTPADDING', (1, 0), (-1, -1), 2*cm),
+        )
 
     def init_templates(self, page_fn, page_fn_later=None):
         self.doc.addPageTemplates([
-            PageTemplate(id='First', frames=[self.frame], onPage=page_fn),
-            PageTemplate(id='Later', frames=[self.frame], onPage=page_fn_later or page_fn),
-            ])
+            PageTemplate(
+                id='First',
+                frames=[self.frame],
+                onPage=page_fn),
+            PageTemplate(
+                id='Later',
+                frames=[self.frame],
+                onPage=page_fn_later or page_fn),
+        ])
         self.story.append(NextPageTemplate('Later'))
 
     def init_report(self, page_fn=dummy_stationery, page_fn_later=None):
-        frame_kwargs = {'showBoundary': self.show_boundaries,
-            'leftPadding': 0, 'rightPadding': 0, 'topPadding': 0, 'bottomPadding': 0}
+        frame_kwargs = {
+            'showBoundary': self.show_boundaries,
+            'leftPadding': 0,
+            'rightPadding': 0,
+            'topPadding': 0,
+            'bottomPadding': 0,
+        }
 
         full_frame = Frame(2.6*cm, 2*cm, 16.4*cm, 25*cm, **frame_kwargs)
 
         self.doc.addPageTemplates([
-            PageTemplate(id='First', frames=[full_frame], onPage=page_fn),
-            PageTemplate(id='Later', frames=[full_frame], onPage=page_fn_later or page_fn),
-            ])
+            PageTemplate(
+                id='First',
+                frames=[full_frame],
+                onPage=page_fn),
+            PageTemplate(
+                id='Later',
+                frames=[full_frame],
+                onPage=page_fn_later or page_fn),
+        ])
         self.story.append(NextPageTemplate('Later'))
 
         self.generate_style(font_size=8)
 
-    def init_confidential_report(self, page_fn=dummy_stationery, page_fn_later=None):
+    def init_confidential_report(self, page_fn=dummy_stationery,
+                                 page_fn_later=None):
         if not page_fn_later:
             page_fn_later = page_fn
 
@@ -355,18 +386,30 @@ class PDFDocument(object):
         self.init_report(page_fn=_first_page_fn, page_fn_later=page_fn_later)
 
     def init_letter(self, page_fn=dummy_stationery, page_fn_later=None,
-            address_y=None):
-        frame_kwargs = {'showBoundary': self.show_boundaries,
-            'leftPadding': 0, 'rightPadding': 0, 'topPadding': 0, 'bottomPadding': 0}
+                    address_y=None):
+        frame_kwargs = {
+            'showBoundary': self.show_boundaries,
+            'leftPadding': 0,
+            'rightPadding': 0,
+            'topPadding': 0,
+            'bottomPadding': 0,
+        }
 
-        address_frame = Frame(2.6*cm, address_y or 20.2*cm, 16.4*cm, 4*cm, **frame_kwargs)
+        address_frame = Frame(
+            2.6*cm, address_y or 20.2*cm, 16.4*cm, 4*cm, **frame_kwargs)
         rest_frame = Frame(2.6*cm, 2*cm, 16.4*cm, 18.2*cm, **frame_kwargs)
         full_frame = Frame(2.6*cm, 2*cm, 16.4*cm, 25*cm, **frame_kwargs)
 
         self.doc.addPageTemplates([
-            PageTemplate(id='First', frames=[address_frame, rest_frame], onPage=page_fn),
-            PageTemplate(id='Later', frames=[full_frame], onPage=page_fn_later or page_fn),
-            ])
+            PageTemplate(
+                id='First',
+                frames=[address_frame, rest_frame],
+                onPage=page_fn),
+            PageTemplate(
+                id='Later',
+                frames=[full_frame],
+                onPage=page_fn_later or page_fn),
+        ])
         self.story.append(NextPageTemplate('Later'))
 
         self.generate_style(font_size=9)
@@ -401,19 +444,23 @@ class PDFDocument(object):
 
     def ul(self, items):
         for item in items:
-            self.story.append(MarkupParagraph(item, self.style.bullet, bulletText=u'•'))
+            self.story.append(
+                MarkupParagraph(item, self.style.bullet, bulletText=u'•'))
 
     def spacer(self, height=0.6*cm):
         self.story.append(Spacer(1, height))
 
     def table(self, data, columns, style=None):
-        self.story.append(Table(data, columns, style=style or self.style.table))
+        self.story.append(
+            Table(data, columns, style=style or self.style.table))
 
     def hr(self):
-        self.story.append(HRFlowable(width='100%', thickness=0.2, color=colors.black))
+        self.story.append(
+            HRFlowable(width='100%', thickness=0.2, color=colors.black))
 
     def hr_mini(self):
-        self.story.append(HRFlowable(width='100%', thickness=0.2, color=colors.grey))
+        self.story.append(
+            HRFlowable(width='100%', thickness=0.2, color=colors.grey))
 
     def mini_html(self, html):
         """Convert a small subset of HTML into ReportLab paragraphs
@@ -425,7 +472,7 @@ class PDFDocument(object):
         TAG_MAP = {
             'strong': 'b',
             'em': 'i',
-            'br': 'br', # Leave br tags alone
+            'br': 'br',  # Leave br tags alone
         }
 
         BULLETPOINT = u'•'
@@ -479,7 +526,8 @@ class PDFDocument(object):
                         tag.drop_tag()
 
                 _p(
-                    lxml.html.tostring(element, method='xml', encoding=unicode),
+                    lxml.html.tostring(
+                        element, method='xml', encoding=unicode),
                     list_bullet_point,
                     style)
             else:
@@ -504,7 +552,8 @@ class PDFDocument(object):
         obj._doc = self.doc
         self.story.append(obj)
 
-        self.story.append(BottomTable(data, columns, style=style or self.style.table))
+        self.story.append(
+            BottomTable(data, columns, style=style or self.style.table))
 
     def append(self, data):
         self.story.append(data)
@@ -560,7 +609,8 @@ class PDFDocument(object):
         if ysize:
             drawing.renderScale = ysize / (yH - yL)
 
-        renderPDF.draw(drawing, canvas, xpos, ypos, showBoundary=self.show_boundaries)
+        renderPDF.draw(
+            drawing, canvas, xpos, ypos, showBoundary=self.show_boundaries)
 
     def next_frame(self):
         self.story.append(CondPageBreak(20*cm))
@@ -582,8 +632,11 @@ class PDFDocument(object):
             data = obj
         else:
             data = {}
-            for field in ('company', 'manner_of_address', 'first_name', 'last_name', 'address', 'zip_code', 'city', 'full_override'):
-                data[field] = getattr(obj, '%s%s' % (prefix, field), u'').strip()
+            for field in (
+                    'company', 'manner_of_address', 'first_name', 'last_name',
+                    'address', 'zip_code', 'city', 'full_override'):
+                attribute = '%s%s' % (prefix, field)
+                data[field] = getattr(obj, attribute, u'').strip()
 
         address = []
         if data.get('company', False):
@@ -595,14 +648,18 @@ class PDFDocument(object):
 
         if data.get('first_name', False):
             address.append(u'%s%s %s' % (title, data.get('first_name', ''),
-                                         data.get('last_name','')))
+                                         data.get('last_name', '')))
         else:
             address.append(u'%s%s' % (title, data.get('last_name', '')))
 
         address.append(data.get('address'))
-        address.append(u'%s %s' % (data.get('zip_code', ''), data.get('city', '')))
+        address.append(u'%s %s' % (
+            data.get('zip_code', ''),
+            data.get('city', '')))
 
         if data.get('full_override'):
-            address = [l.strip() for l in data.get('full_override').replace('\r', '').splitlines()]
+            address = [
+                l.strip() for l in
+                data.get('full_override').replace('\r', '').splitlines()]
 
         self.p('\n'.join(address))
