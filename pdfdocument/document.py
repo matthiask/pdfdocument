@@ -13,7 +13,16 @@ from reportlab.platypus import (
 from reportlab.platypus.flowables import HRFlowable
 
 import copy
+import sys
 import unicodedata
+
+
+PY2 = (sys.version_info[0] < 3)
+
+if PY2:
+    string_type = unicode
+else:
+    string_type = str
 
 
 def register_fonts_from_paths(regular, italic=None, bold=None, bolditalic=None,
@@ -60,8 +69,8 @@ def normalize(text):
     german umlauts in decomposed form correctly. Normalize everything to
     NFKC.
     """
-    if not isinstance(text, unicode):
-        text = unicode(text)
+    if not isinstance(text, string_type):
+        text = string_type(text)
     return unicodedata.normalize('NFKC', text)
 
 
@@ -527,7 +536,7 @@ class PDFDocument(object):
 
                 _p(
                     lxml.html.tostring(
-                        element, method='xml', encoding=unicode),
+                        element, method='xml', encoding=string_type),
                     list_bullet_point,
                     style)
             else:
