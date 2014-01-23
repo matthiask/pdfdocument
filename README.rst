@@ -73,7 +73,7 @@ have to either use only ``pdf.p_markup`` or resort to creating
 Headings
 --------
 
-``pdf.h1)``, ``pdf.h2``, ``pdf.h3``
+``pdf.h1``, ``pdf.h2``, ``pdf.h3``
 
 
 Paragraphs
