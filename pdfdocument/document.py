@@ -395,7 +395,7 @@ class PDFDocument(object):
         self.init_report(page_fn=_first_page_fn, page_fn_later=page_fn_later)
 
     def init_letter(self, page_fn=dummy_stationery, page_fn_later=None,
-                    address_y=None):
+                    address_y=None, address_x=None):
         frame_kwargs = {
             'showBoundary': self.show_boundaries,
             'leftPadding': 0,
@@ -405,7 +405,12 @@ class PDFDocument(object):
         }
 
         address_frame = Frame(
-            2.6*cm, address_y or 20.2*cm, 16.4*cm, 4*cm, **frame_kwargs)
+            address_x or 2.6 * cm,
+            address_y or 20.2 * cm,
+            16.4 * cm,
+            4 * cm,
+            **frame_kwargs
+        )
         rest_frame = Frame(2.6*cm, 2*cm, 16.4*cm, 18.2*cm, **frame_kwargs)
         full_frame = Frame(2.6*cm, 2*cm, 16.4*cm, 25*cm, **frame_kwargs)
 
