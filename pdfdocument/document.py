@@ -153,7 +153,7 @@ class ReportingDocTemplate(BaseDocTemplate):
         if what == 'STARTED':
             self._lastNumPages = self.numPages
             self.restartDocIndex = 0
-            #self.restartDocPageNumbers = []
+            # self.restartDocPageNumbers = []
 
     def page_index(self):
         """
@@ -238,26 +238,26 @@ class PDFDocument(object):
         self.style.normal.fontName = '%s' % self.style.fontName
         self.style.normal.fontSize = self.style.fontSize
         self.style.normal.firstLineIndent = 0
-        #normal.textColor = '#0e2b58'
+        # normal.textColor = '#0e2b58'
 
         self.style.heading1 = copy.deepcopy(self.style.normal)
         self.style.heading1.fontName = '%s' % self.style.fontName
         self.style.heading1.fontSize = 1.5 * self.style.fontSize
         self.style.heading1.leading = 2 * self.style.fontSize
-        #heading1.leading = 10*mm
+        # heading1.leading = 10*mm
 
         self.style.heading2 = copy.deepcopy(self.style.normal)
         self.style.heading2.fontName = '%s-Bold' % self.style.fontName
         self.style.heading2.fontSize = 1.25 * self.style.fontSize
         self.style.heading2.leading = 1.75 * self.style.fontSize
-        #heading2.leading = 5*mm
+        # heading2.leading = 5*mm
 
         self.style.heading3 = copy.deepcopy(self.style.normal)
         self.style.heading3.fontName = '%s-Bold' % self.style.fontName
         self.style.heading3.fontSize = 1.1 * self.style.fontSize
         self.style.heading3.leading = 1.5 * self.style.fontSize
         self.style.heading3.textColor = '#666666'
-        #heading3.leading = 5*mm
+        # heading3.leading = 5*mm
 
         self.style.small = copy.deepcopy(self.style.normal)
         self.style.small.fontSize = self.style.fontSize - 0.9
