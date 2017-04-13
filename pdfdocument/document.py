@@ -1,5 +1,7 @@
 # coding=utf-8
 
+from functools import reduce
+
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_RIGHT
 from reportlab.lib.fonts import addMapping
