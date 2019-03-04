@@ -557,8 +557,7 @@ class PDFDocument(object):
                 _p(element.tail, list_bullet_point, style)
 
         soup = lxml.html.soupparser.fromstring(html)
-        for element in soup:
-            _handle_element(element)
+        _handle_element(soup)
 
     def pagebreak(self):
         self.story.append(PageBreak())
