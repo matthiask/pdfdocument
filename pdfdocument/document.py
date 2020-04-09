@@ -382,7 +382,7 @@ class PDFDocument(object):
         ])
         self.story.append(NextPageTemplate('Later'))
 
-        self.generate_style(font_size=8)
+        self.generate_style()
 
     def init_confidential_report(self, page_fn=dummy_stationery,
                                  page_fn_later=None):
@@ -428,7 +428,7 @@ class PDFDocument(object):
         ])
         self.story.append(NextPageTemplate('Later'))
 
-        self.generate_style(font_size=9)
+        self.generate_style()
 
     def watermark(self, watermark=None):
         self._watermark = watermark
