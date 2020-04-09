@@ -6,3 +6,6 @@
 ._*
 /dist
 MANIFEST
+build
+*.egg-info
+.tox

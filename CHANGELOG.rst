@@ -13,6 +13,7 @@ Change log
 - Changed ``init_report`` and ``init_letter`` to not explicitly specify
   the font size of the document. This changes reports to use a default
   font size of ``9`` instead of ``8``.
+- Reformatted the code using ``black`` and ``isort``.
 
 
 `v3.3`_ (2019-03-04)

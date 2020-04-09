@@ -9,40 +9,38 @@ def create_stationery_fn(*fns):
     def _fn(canvas, document):
         for fn in fns:
             fn(canvas, document.PDFDocument)
+
     return _fn
 
 
 class ExampleStationery(object):
     def __call__(self, canvas, pdfdocument):
-        left_offset = 28.6*mm
+        left_offset = 28.6 * mm
 
         canvas.saveState()
-        canvas.setFont('%s-Bold' % pdfdocument.style.fontName, 10)
-        canvas.drawString(26*mm, 284*mm, 'PLATA')
-        canvas.setFont('%s' % pdfdocument.style.fontName, 10)
-        canvas.drawString(26*mm + left_offset, 284*mm, 'Django Shop Software')
+        canvas.setFont("%s-Bold" % pdfdocument.style.fontName, 10)
+        canvas.drawString(26 * mm, 284 * mm, "PLATA")
+        canvas.setFont("%s" % pdfdocument.style.fontName, 10)
+        canvas.drawString(26 * mm + left_offset, 284 * mm, "Django Shop Software")
         pdfdocument.draw_watermark(canvas)
         canvas.restoreState()
 
         canvas.saveState()
-        canvas.setFont('%s' % pdfdocument.style.fontName, 6)
-        for i, text in enumerate(reversed([
-                pdfdocument.doc.page_index_string()])):
-            canvas.drawRightString(190*mm, (8+3*i)*mm, text)
+        canvas.setFont("%s" % pdfdocument.style.fontName, 6)
+        for i, text in enumerate(reversed([pdfdocument.doc.page_index_string()])):
+            canvas.drawRightString(190 * mm, (8 + 3 * i) * mm, text)
 
-        for i, text in enumerate(reversed(['PLATA', 'Something'])):
-            canvas.drawString(26*mm + left_offset, (8+3*i)*mm, text)
+        for i, text in enumerate(reversed(["PLATA", "Something"])):
+            canvas.drawString(26 * mm + left_offset, (8 + 3 * i) * mm, text)
 
-        logo = getattr(settings, 'PDF_LOGO_SETTINGS', None)
+        logo = getattr(settings, "PDF_LOGO_SETTINGS", None)
         if logo:
             canvas.drawImage(
                 os.path.join(
-                    settings.APP_BASEDIR,
-                    'metronom',
-                    'reporting',
-                    'images',
-                    logo[0]),
-                **logo[1])
+                    settings.APP_BASEDIR, "metronom", "reporting", "images", logo[0]
+                ),
+                **logo[1]
+            )
 
         canvas.restoreState()
 
