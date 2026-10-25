@@ -6,6 +6,9 @@ Change log
 `Next version`_
 ~~~~~~~~~~~~~~~
 
+- Added more usage examples to the README (letters with stationery,
+  tables, fonts, Django views).
+
 
 `v4.0`_ (2020-04-09)
 ~~~~~~~~~~~~~~~~~~~~
